@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://arthurlee.bio/favicon.ico">
+    <title>Hanji Physics Demo Page</title>
+</head>
+<style>
+    *,
+    ::before,
+    ::after {
+        box-sizing: border-box; 
+        border-width: 0; 
+        border-style: solid; 
+        border-color: theme('borderColor.DEFAULT', currentColor); 
+    }
+    body {
+        margin: 0;
+        line-height: inherit; 
+        font-family: sans-serif;
+        background-color: #0d0d0d;
+        color: #e4e4e4;
+    }
+    .main-container {
+        width: 100vw;
+        height: 100vh;
+        display:flex;
+        flex-direction: column;
+        align-items: center;
+        row-gap: 15px;
+        padding: 50px 200px;
+    }
+    .hanji-header {
+        font-size:2rem;
+    }
+    .canvas-container {
+        border:1px solid #e4e4e4;
+        height:100%;
+        width:100%;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+    .hanji-display {
+        width:100%;
+        height:100%;
+    }
+</style>
+<body>
+    <section class = "main-container">
+        <h1 class="hanji-header">Hanji Physics</h1>
+        <div class="canvas-container">
+            <canvas id="hanji-display" class="hanji-display"/>
+        </div>
+    </div>
+    <script>
+        function throttle(cb, delay = 500) {
+            let waiting = false;
+            let waitingArgs;
+
+            const timeoutFunc = () => {
+                if (waitingArgs == null) {
+                waiting = false;
+                } else {
+                    cb(...waitingArgs);
+                    waitingArgs = null;
+                    setTimeout(timeoutFunc, delay);
+                }
+            };
+
+            return (...args) => {
+                if (waiting) {
+                waitingArgs = args;
+                return;
+                }
+                cb(...args);
+                waiting = true;
+                setTimeout(timeoutFunc, delay);
+            };
+        }
+
+        function connectToWS() {
+
+        }
+
+        function sendPosition(e, conn) {
+            if (!conn) return;
+            const {left, top} = e.target.getBoundingClientRect();
+            const [x, y] = [e.clientX -left, e.clientY - top];
+            conn.send(JSON.stringify({x, y}))
+        }
+        window.addEventListener("load", ()=> {
+            const display = document.getElementById("hanji-display");
+            if(!display) return;
+            if(!window["WebSocket"]) {
+                alert("No Websocket Support")
+            }
+            const conn = new WebSocket("ws://" + document.location.host + "/ws")
+            conn.onopen = (ev)=> {
+                console.log("Websocket Connected")
+                console.log(ev)
+                display.addEventListener("mousemove", throttle((e)=> sendPosition(e, conn),50))
+            }
+            conn.onmessage = (ev) => {
+                console.log(ev)
+            }
+        })
+
+    </script>
+</body>
+</html>
