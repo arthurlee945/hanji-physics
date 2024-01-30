@@ -30,7 +30,6 @@ func NewUser(conn *websocket.Conn, manager *Manager) *User {
 func (u *User) readPosition() {
 	defer func() {
 		//clean up connection
-
 		u.manager.removeUser(u)
 	}()
 	for {
@@ -68,19 +67,30 @@ func (u *User) writePosition() {
 		u.manager.removeUser(u)
 	}()
 	for {
-		select {
-		case payload, ok := <-u.egress:
-			if !ok {
-				if err := u.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
-					log.Println("Connection Closed: ", err)
-				}
-				return
+		payload, ok := <-u.egress
+		if !ok {
+			if err := u.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
+				log.Println("Connection Closed: ", err)
 			}
-			if err := u.connection.WriteMessage(websocket.TextMessage, payload); err != nil {
-				log.Printf("failed to send message: %v", err)
-			}
-			log.Println("message sent")
-
+			return
 		}
+		if err := u.connection.WriteMessage(websocket.TextMessage, payload); err != nil {
+			log.Printf("failed to send message: %v", err)
+		}
+		log.Println("message sent")
+		// select {
+		// case payload, ok := <-u.egress:
+		// 	if !ok {
+		// 		if err := u.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
+		// 			log.Println("Connection Closed: ", err)
+		// 		}
+		// 		return
+		// 	}
+		// 	if err := u.connection.WriteMessage(websocket.TextMessage, payload); err != nil {
+		// 		log.Printf("failed to send message: %v", err)
+		// 	}
+		// 	log.Println("message sent")
+
+		// }
 	}
 }
