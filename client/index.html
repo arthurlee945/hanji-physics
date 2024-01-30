@@ -13,7 +13,6 @@
         box-sizing: border-box; 
         border-width: 0; 
         border-style: solid; 
-        border-color: theme('borderColor.DEFAULT', currentColor); 
     }
     body {
         margin: 0;
@@ -33,6 +32,14 @@
     }
     .hanji-header {
         font-size:2rem;
+        transition: letter-spacing 300ms;
+    }
+    .hanji-header >a{
+        color:white;
+        text-decoration: unset;
+    }
+    .hanji-header:hover{
+        letter-spacing: 0.1rem;
     }
     .canvas-container {
         border:1px solid #e4e4e4;
@@ -48,7 +55,7 @@
 </style>
 <body>
     <section class = "main-container">
-        <h1 class="hanji-header">Hanji Physics</h1>
+        <h1 class="hanji-header"><a href="https://github.com/arthurlee945/hanji-physics" target="_blank">Hanji Physics</a></h1>
         <div class="canvas-container">
             <canvas id="hanji-display" class="hanji-display"/>
         </div>
