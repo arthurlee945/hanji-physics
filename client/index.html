@@ -31,15 +31,30 @@
         padding: 50px 200px;
     }
     .hanji-header {
+        display:flex;
+        justify-content: center;
+        position:relative;
         font-size:2rem;
         transition: letter-spacing 300ms;
     }
     .hanji-header >a{
-        color:white;
+        color:#f0efef;
         text-decoration: unset;
     }
     .hanji-header:hover{
         letter-spacing: 0.1rem;
+    }
+    .hanji-header::after{
+        content:"";
+        position:absolute;
+        height:2px;
+        bottom:-2px;
+        background-color: #f0efef;
+        width:0px;
+        transition: width 300ms;
+    }
+    .hanji-header:hover::after{
+        width:100%;
     }
     .canvas-container {
         border:1px solid #e4e4e4;
@@ -55,7 +70,7 @@
 </style>
 <body>
     <section class = "main-container">
-        <h1 class="hanji-header"><a href="https://github.com/arthurlee945/hanji-physics" target="_blank">Hanji Physics</a></h1>
+        <h1 class="hanji-header"><a href="https://github.com/arthurlee945/hanji-physics" target="_blank">Hanji Physics <span id="ws-connection-header">(Closed)</span></a></h1>
         <div class="canvas-container">
             <canvas id="hanji-display" class="hanji-display"/>
         </div>
@@ -86,31 +101,88 @@
             };
         }
 
-        function connectToWS() {
+        class PositionEvent {
+            constructor(type, position) {
+                this.type = type;
+                this.position = position;
+            }
+        }
 
+        function routeEvent(event){
+            if (event.type === "undefined" ){
+                alert("no type field in the event")
+            }
+
+            switch(event.type) {
+                case "hover":
+                    console.log("new MSG", event.position)
+                    //add func to update canvas to follow other user's cursor
+                    break;
+                default:
+                    alert("unsupported type");
+                    break;
+            }
+        }
+        function sendEvent(eventName, position, conn) {
+            if (!conn) return;
+            const event = new PositionEvent(eventName, position)
+            conn.send(JSON.stringify(event))
         }
 
         function sendPosition(e, conn) {
             if (!conn) return;
             const {left, top} = e.target.getBoundingClientRect();
             const [x, y] = [e.clientX -left, e.clientY - top];
-            conn.send(JSON.stringify({x, y}))
+            sendEvent("hover", {x, y}, conn)
         }
-        window.addEventListener("load", ()=> {
+
+        async function login() {
+            const sampleHeader = {token: "MonkeySaysHi"};
+            try {
+                const res = await fetch("authorize", {
+                    method:"post",
+                    headers:sampleHeader,
+                    mode:"cors"
+                })
+                if (!res.ok) throw Error("unauthorized")
+                const data = await res.json();
+
+                connectWebsocket(data.otp)
+            }catch(err) {
+                alert(err)
+            }
+        }
+
+        function connectWebsocket(otp){
             const display = document.getElementById("hanji-display");
+            const wsHeader = document.getElementById("ws-connection-header")
             if(!display) return;
             if(!window["WebSocket"]) {
                 alert("No Websocket Support")
             }
-            const conn = new WebSocket("ws://" + document.location.host + "/ws")
+            const conn = new WebSocket("wss://" + document.location.host + `/ws?otp=${otp}`);
+
             conn.onopen = (ev)=> {
                 console.log("Websocket Connected")
-                console.log(ev)
+                if (wsHeader) wsHeader.innerText = "(Connected)"
                 display.addEventListener("mousemove", throttle((e)=> sendPosition(e, conn),50))
             }
             conn.onmessage = (ev) => {
-                console.log(ev)
+                try {
+                    const eventData = JSON.parse(ev.data);
+                    console.log(eventData)
+                    const pEvent = new PositionEvent("hover", eventData)
+                }catch(err){
+                    console.error(err)
+                }
             }
+            conn.onclose = (ev) => {
+                if (!wsHeader) wsHeader.innerText = "(Closed)"
+            }
+        }
+        window.addEventListener("load", ()=> {
+
+            login();
         })
 
     </script>

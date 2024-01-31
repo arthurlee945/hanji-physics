@@ -7,6 +7,8 @@
 *.dll
 *.so
 *.dylib
+server.key
+server.crt
 
 # Test binary, built with `go test -c`
 *.test

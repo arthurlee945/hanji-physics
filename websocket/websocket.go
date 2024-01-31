@@ -1,15 +1,20 @@
 package websocket
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 var (
 	websocketUpgrader = websocket.Upgrader{
+		CheckOrigin:     checkOrigin,
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
@@ -17,16 +22,72 @@ var (
 
 type Manager struct {
 	users UserList
-	sync.RWMutex
+	mu    sync.RWMutex
+
+	otps     RetentionMap
+	handlers map[EventType]EventHandler
 }
 
-func NewManager() *Manager {
-	return &Manager{
-		users: make(UserList),
+func NewManager(ctx context.Context) *Manager {
+	m := &Manager{
+		users:    make(UserList),
+		handlers: make(map[EventType]EventHandler),
+		otps:     NewRetentionMap(ctx, 5*time.Second),
 	}
+	m.setupEventHandlers()
+	return m
+}
+
+func (m *Manager) setupEventHandlers() {
+	m.handlers[EventHover] = SendHoverPosition
+}
+
+func (m *Manager) routeEvent(evt Event, u *User) error {
+	if handler, ok := m.handlers[evt.Type]; ok {
+		if err := handler(evt, u); err != nil {
+			return err
+		}
+		return nil
+	}
+	return errors.New("there is no such event type")
+}
+
+func (m *Manager) AuthenticationHandler(w http.ResponseWriter, r *http.Request) {
+	type response struct {
+		OTP string `json:"otp"`
+	}
+	token := r.Header.Get("token")
+	if token == "" {
+		http.Error(w, "no token passed", http.StatusBadRequest)
+	}
+	//TODO: NEED TO USE DYNAMIC INSTEAD OF HARD CODED
+	if token != "MonkeySaysHi" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+	}
+	otp := m.otps.NewOTP()
+
+	resp := response{
+		OTP: otp.Key,
+	}
+	data, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 }
 
 func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
+	otp := r.URL.Query().Get("otp")
+	if otp == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if !m.otps.VerifyOTP(otp) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	log.Println("new connection")
 
 	//upgrade regular http conn to websocket
@@ -46,16 +107,52 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Manager) addUser(User *User) {
-	m.Lock()
-	defer m.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.users[User] = true
 }
 
 func (m *Manager) removeUser(user *User) {
-	m.Lock()
-	defer m.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if _, ok := m.users[user]; ok {
 		user.connection.Close()
 		delete(m.users, user)
+	}
+}
+
+// EVENT HANDLERS + HELPER
+
+func SendHoverPosition(evt Event, u *User) error {
+	// var broadMessage NewHoverEvent
+
+	// broadMessage.Position = evt.Position
+	// broadMessage.Message = "Hello from server"
+	// data, err := json.Marshal(broadMessage)
+	// if err != nil {
+	// 	return fmt.Errorf("Error marshalling broadmessage %v", err)
+	// }
+
+	outgoingEvent := Event{
+		Position: evt.Position,
+		Type:     EventReply,
+	}
+	for user := range u.manager.users {
+		if u == user {
+			continue
+		}
+		user.egress <- outgoingEvent
+	}
+	return nil
+}
+
+// TODO: UPDATE THIS TO USE ENV
+func checkOrigin(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	switch origin {
+	case "https://localhost:8080":
+		return true
+	default:
+		return false
 	}
 }
