@@ -9,6 +9,7 @@
 *.dylib
 server.key
 server.crt
+tmp
 
 # Test binary, built with `go test -c`
 *.test

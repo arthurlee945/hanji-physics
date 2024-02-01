@@ -39,10 +39,11 @@ func NewManager(ctx context.Context) *Manager {
 }
 
 func (m *Manager) setupEventHandlers() {
-	m.handlers[EventHover] = SendHoverPosition
+	m.handlers[PointerMoveEvent] = handlePointerMoveEvent
+	m.handlers[StartEvent] = handleStartEvent
 }
 
-func (m *Manager) routeEvent(evt Event, u *User) error {
+func (m *Manager) routeEvent(evt RequestEvent, u *User) error {
 	if handler, ok := m.handlers[evt.Type]; ok {
 		if err := handler(evt, u); err != nil {
 			return err
@@ -97,7 +98,7 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := NewUser(conn, m)
+	user := NewUser(conn, m, otp)
 
 	m.addUser(user)
 
@@ -119,31 +120,6 @@ func (m *Manager) removeUser(user *User) {
 		user.connection.Close()
 		delete(m.users, user)
 	}
-}
-
-// EVENT HANDLERS + HELPER
-
-func SendHoverPosition(evt Event, u *User) error {
-	// var broadMessage NewHoverEvent
-
-	// broadMessage.Position = evt.Position
-	// broadMessage.Message = "Hello from server"
-	// data, err := json.Marshal(broadMessage)
-	// if err != nil {
-	// 	return fmt.Errorf("Error marshalling broadmessage %v", err)
-	// }
-
-	outgoingEvent := Event{
-		Position: evt.Position,
-		Type:     EventReply,
-	}
-	for user := range u.manager.users {
-		if u == user {
-			continue
-		}
-		user.egress <- outgoingEvent
-	}
-	return nil
 }
 
 // TODO: UPDATE THIS TO USE ENV

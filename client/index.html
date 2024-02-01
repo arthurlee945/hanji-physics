@@ -28,7 +28,7 @@
         flex-direction: column;
         align-items: center;
         row-gap: 15px;
-        padding: 50px 200px;
+        padding: 50px;
     }
     .hanji-header {
         display:flex;
@@ -72,10 +72,14 @@
     <section class = "main-container">
         <h1 class="hanji-header"><a href="https://github.com/arthurlee945/hanji-physics" target="_blank">Hanji Physics <span id="ws-connection-header">(Closed)</span></a></h1>
         <div class="canvas-container">
-            <canvas id="hanji-display" class="hanji-display"/>
+            <canvas id="hanji-display" class="hanji-display" />
         </div>
     </div>
     <script>
+        let userId;
+        const userIndicatorRad = 10;
+        const users = {};
+
         function throttle(cb, delay = 500) {
             let waiting = false;
             let waitingArgs;
@@ -101,12 +105,78 @@
             };
         }
 
-        class PositionEvent {
-            constructor(type, position) {
+        class ResponseEvent {
+            constructor(userId, type, position) {
+                this.userId = userId;
                 this.type = type;
                 this.position = position;
             }
         }
+
+        class LoggedUser {
+            constructor(userId, color, prevPos, currPos){
+                this.userId = userId;
+                this.color = color;
+                this.prevPos = prevPos;
+                this.currPos = currPos;
+            }
+        }
+        //#region UTILITY
+        function getRandRGB(){
+            return `rgb(${50 + Math.floor(Math.random() * 150)}, ${50 + Math.floor(Math.random() * 150)}, ${50 + Math.floor(Math.random() * 150)})`;
+        }
+
+        function updateCanvasSize(){
+            const canvas = document.getElementById("hanji-display");
+            if(!canvas) return;
+            const {width, height} = canvas.getBoundingClientRect();
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        function logUser(evt) {
+            if (!users[evt.userId]) {
+                users[evt.userId] = new LoggedUser(evt.userId, getRandRGB(), evt.position, evt.position)
+                return;
+            }
+            users[evt.userId].prevPos =  users[evt.userId].currPos
+            users[evt.userId].currPos = evt.position
+        }
+
+        function cleanUserIndicator(x, y, rad, ctx) {
+            ctx.clearRect(x-rad - 1, y-rad - 1, rad * 2 + 2, rad * 2 + 2);
+        }
+        function drawUserIndicator(evt){
+            const canvas = document.getElementById("hanji-display");
+            if(!canvas) return;
+            const {width, height} = canvas.getBoundingClientRect();
+            const ctx = canvas.getContext("2d");
+            const user = users[evt.userId]
+            cleanUserIndicator(user.prevPos.x, user.prevPos.y, userIndicatorRad, ctx);
+            ctx.fillStyle = user.color;
+            ctx.filter = "opacity(0.75)"
+            ctx.beginPath();
+            ctx.arc(user.currPos.x, user.currPos.y, userIndicatorRad, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function getRelativePosition(e) {
+            const {left, top} = e.target.getBoundingClientRect();
+            return [e.clientX -left, e.clientY - top]
+        }
+
+        //#endregion
+
+        //#region HANDLERS
+        function handleStart(event){
+            console.log("Initial Start Acknowledged", userId)
+            userId = event.userId;
+        }
+        function handlePointerMove(evt){
+            if(evt.userId === userId) return;
+            drawUserIndicator(evt)
+        }
+        //#endregion
 
         function routeEvent(event){
             if (event.type === "undefined" ){
@@ -114,29 +184,67 @@
             }
 
             switch(event.type) {
-                case "hover":
-                    console.log("new MSG", event.position)
-                    //add func to update canvas to follow other user's cursor
+                case "pointermove":
+                    handlePointerMove(event);
+                    break;
+                case "start":
+                    handleStart(event);
+                    break;
+                case "test":
+                    console.log('test');
                     break;
                 default:
                     alert("unsupported type");
                     break;
             }
         }
+
         function sendEvent(eventName, position, conn) {
-            if (!conn) return;
-            const event = new PositionEvent(eventName, position)
+            if (!conn || !userId) return;
+            const event = new ResponseEvent(userId, eventName, position)
             conn.send(JSON.stringify(event))
         }
 
-        function sendPosition(e, conn) {
-            if (!conn) return;
-            const {left, top} = e.target.getBoundingClientRect();
-            const [x, y] = [e.clientX -left, e.clientY - top];
-            sendEvent("hover", {x, y}, conn)
+        function sendPointerMove(e, conn) {
+            if (!conn || !userId) return;
+            const [x, y] = getRelativePosition(e);
+            sendEvent("pointermove", {x, y}, conn)
         }
 
-        async function login() {
+        function connectWebsocket(otp){
+            const canvas = document.getElementById("hanji-display");
+            const wsHeader = document.getElementById("ws-connection-header")
+            if(!canvas) return;
+            if(!window["WebSocket"]) {
+                alert("No Websocket Support")
+            }
+            const conn = new WebSocket("wss://" + document.location.host + `/ws?otp=${otp}`);
+            conn.onopen = (ev)=> {
+                console.log("Hanji Physics Connected")
+                if (wsHeader) wsHeader.innerText = "(Connected)"
+                canvas.addEventListener("mousemove", throttle((e)=> sendPointerMove(e, conn),10))
+            }
+
+            conn.onmessage = (ev) => {
+                try {
+                    const {userId, type, position, matrix} = JSON.parse(ev.data);
+                    if(!userId || !position) {
+                        alert("UserID and UserPosition is missing");
+                    }
+                    const pEvent = new ResponseEvent(userId, type, position)
+                    logUser(pEvent);
+                    routeEvent(pEvent);
+                }catch(err){
+                    console.error(err)
+                }
+            }
+
+            conn.onclose = (ev) => {
+                if (!wsHeader) wsHeader.innerText = "(Closed)"
+            }
+        }
+
+        async function authenticate() {
             const sampleHeader = {token: "MonkeySaysHi"};
             try {
                 const res = await fetch("authorize", {
@@ -146,45 +254,18 @@
                 })
                 if (!res.ok) throw Error("unauthorized")
                 const data = await res.json();
-
+                userId = data.otp;
                 connectWebsocket(data.otp)
             }catch(err) {
                 alert(err)
             }
         }
 
-        function connectWebsocket(otp){
-            const display = document.getElementById("hanji-display");
-            const wsHeader = document.getElementById("ws-connection-header")
-            if(!display) return;
-            if(!window["WebSocket"]) {
-                alert("No Websocket Support")
-            }
-            const conn = new WebSocket("wss://" + document.location.host + `/ws?otp=${otp}`);
-
-            conn.onopen = (ev)=> {
-                console.log("Websocket Connected")
-                if (wsHeader) wsHeader.innerText = "(Connected)"
-                display.addEventListener("mousemove", throttle((e)=> sendPosition(e, conn),50))
-            }
-            conn.onmessage = (ev) => {
-                try {
-                    const eventData = JSON.parse(ev.data);
-                    console.log(eventData)
-                    const pEvent = new PositionEvent("hover", eventData)
-                }catch(err){
-                    console.error(err)
-                }
-            }
-            conn.onclose = (ev) => {
-                if (!wsHeader) wsHeader.innerText = "(Closed)"
-            }
-        }
         window.addEventListener("load", ()=> {
-
-            login();
+            authenticate();
+            updateCanvasSize();
         })
-
+        window.addEventListener("resize", updateCanvasSize)
     </script>
 </body>
 </html>

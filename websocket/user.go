@@ -16,18 +16,20 @@ var (
 type UserList map[*User]bool
 
 type User struct {
+	id         string
 	connection *websocket.Conn
 	manager    *Manager
 
 	//egress is used to avoid concurrent writes on the ws conn
-	egress chan Event
+	egress chan ResponseEvent
 }
 
-func NewUser(conn *websocket.Conn, manager *Manager) *User {
+func NewUser(conn *websocket.Conn, manager *Manager, id string) *User {
 	return &User{
+		id:         id,
 		connection: conn,
 		manager:    manager,
-		egress:     make(chan Event, 1),
+		egress:     make(chan ResponseEvent, 1),
 	}
 }
 
@@ -45,7 +47,7 @@ func (u *User) readPosition() {
 	u.connection.SetReadLimit(1024)
 	u.connection.SetPongHandler(u.pongHandler)
 	for {
-		var request Event
+		var request RequestEvent
 		err := u.connection.ReadJSON(&request)
 
 		if err != nil {
@@ -59,7 +61,6 @@ func (u *User) readPosition() {
 		if err := u.manager.routeEvent(request, u); err != nil {
 			log.Println("error occured: ", err)
 		}
-
 	}
 }
 
@@ -71,14 +72,14 @@ func (u *User) writePosition() {
 	ticker := time.NewTicker(pingInterval)
 	for {
 		select {
-		case payload, ok := <-u.egress:
+		case position, ok := <-u.egress:
 			if !ok {
 				if err := u.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
 					log.Println("Connection Closed: ", err)
 				}
 				return
 			}
-			data, err := json.Marshal(payload)
+			data, err := json.Marshal(position)
 			if err != nil {
 				log.Println("Error occured: ", err)
 				break
@@ -86,7 +87,6 @@ func (u *User) writePosition() {
 			if err := u.connection.WriteMessage(websocket.TextMessage, data); err != nil {
 				log.Printf("failed to send message: %v", err)
 			}
-			log.Println("message sent")
 		case <-ticker.C:
 			log.Println("ping")
 			if err := u.connection.WriteMessage(websocket.PingMessage, []byte{}); err != nil {

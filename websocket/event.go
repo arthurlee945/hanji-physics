@@ -3,29 +3,31 @@ package websocket
 type EventType string
 
 const (
-	EventHover = "hover"
-	EventReply = "Reply from server"
+	StartEvent        = "start"
+	PointerMoveEvent  = "pointermove"
+	PointerDownEvent  = "pointerdown"
+	PointerUpEvent    = "pointerup"
+	PointerLeaveEvent = "mousedown"
+	MatrixEvent       = "test"
 )
 
-// MOST LIKELY WONT USE
 type UserPosition struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
 }
 
-type Event struct {
+type RequestEvent struct {
+	UserId   string       `json:"userId"`
 	Type     EventType    `json:"type"`
 	Position UserPosition `json:"position"`
 }
 
-type EventHandler func(evt Event, u *User) error
-
-type SendHoverEvent struct {
-	Message string `json:"message"`
-	FROM    string `json:"from"`
+// TODO: update matrix reflect correct data type
+type ResponseEvent struct {
+	UserId   string       `json:"userId"`
+	Type     EventType    `json:"type"`
+	Position UserPosition `json:"position"`
+	Matrix   []byte       `json:"matrix"`
 }
 
-type NewHoverEvent struct {
-	Position UserPosition
-	Message  string `json:"message"`
-}
+type EventHandler func(evt RequestEvent, u *User) error
