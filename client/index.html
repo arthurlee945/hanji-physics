@@ -56,13 +56,33 @@
     .hanji-header:hover::after{
         width:100%;
     }
-    .canvas-container {
+    .hanji-display-container {
+        position:relative;
         border:1px solid #e4e4e4;
         height:100%;
         width:100%;
         border-radius: 25px;
         overflow: hidden;
     }
+
+    .hanji-user-element{
+        position:absolute;
+        display:grid;
+        place-items: center;
+        width:0px;
+        height:0px;
+    }
+
+    .hanji-user-element::after{
+        content: "";
+        display:block;
+        position:absolute;
+        width:15px;
+        height:15px;
+        border-radius: 50%;
+        background-color: inherit;
+    }
+
     .hanji-display {
         width:100%;
         height:100%;
@@ -71,13 +91,12 @@
 <body>
     <section class = "main-container">
         <h1 class="hanji-header"><a href="https://github.com/arthurlee945/hanji-physics" target="_blank">Hanji Physics <span id="ws-connection-header">(Closed)</span></a></h1>
-        <div class="canvas-container">
+        <div id="hanji-display-container" class="hanji-display-container">
             <canvas id="hanji-display" class="hanji-display" />
         </div>
     </div>
     <script>
         let userId;
-        const userIndicatorRad = 10;
         const users = {};
 
         function throttle(cb, delay = 500) {
@@ -134,30 +153,31 @@
             canvas.height = height;
         }
 
+        function addUserElement(user){
+            const hanjiContainer = document.getElementById("hanji-display-container")
+            const userElement = document.createElement("div");
+            userElement.classList.add("hanji-user-element");
+            userElement.setAttribute("style", `background-color: ${user.color}; top: -15px; left: -15px;`);
+            userElement.id = user.userId;
+            hanjiContainer.appendChild(userElement);
+        }
+
         function logUser(evt) {
             if (!users[evt.userId]) {
                 users[evt.userId] = new LoggedUser(evt.userId, getRandRGB(), evt.position, evt.position)
+                addUserElement(users[evt.userId]);
                 return;
             }
             users[evt.userId].prevPos =  users[evt.userId].currPos
             users[evt.userId].currPos = evt.position
         }
 
-        function cleanUserIndicator(x, y, rad, ctx) {
-            ctx.clearRect(x-rad - 1, y-rad - 1, rad * 2 + 2, rad * 2 + 2);
-        }
-        function drawUserIndicator(evt){
-            const canvas = document.getElementById("hanji-display");
-            if(!canvas) return;
-            const {width, height} = canvas.getBoundingClientRect();
-            const ctx = canvas.getContext("2d");
+        function updateUserElementPos(evt){
+            const canvasCnt = document.getElementById("hanji-display-container");
+            if(!canvasCnt) return;
+            const {width, height} = canvasCnt.getBoundingClientRect();
             const user = users[evt.userId]
-            cleanUserIndicator(user.prevPos.x, user.prevPos.y, userIndicatorRad, ctx);
-            ctx.fillStyle = user.color;
-            ctx.filter = "opacity(0.75)"
-            ctx.beginPath();
-            ctx.arc(user.currPos.x, user.currPos.y, userIndicatorRad, 0, 2 * Math.PI);
-            ctx.fill();
+            document.getElementById(user.userId).setAttribute("style", `background-color: ${user.color}; top: ${user.currPos.y}px; left: ${user.currPos.x}px;`)
         }
 
         function getRelativePosition(e) {
@@ -168,13 +188,9 @@
         //#endregion
 
         //#region HANDLERS
-        function handleStart(event){
-            console.log("Initial Start Acknowledged", userId)
-            userId = event.userId;
-        }
         function handlePointerMove(evt){
             if(evt.userId === userId) return;
-            drawUserIndicator(evt)
+            updateUserElementPos(evt)
         }
         //#endregion
 
@@ -185,10 +201,8 @@
 
             switch(event.type) {
                 case "pointermove":
+                    console.log(event.position)
                     handlePointerMove(event);
-                    break;
-                case "start":
-                    handleStart(event);
                     break;
                 case "test":
                     console.log('test');
@@ -212,9 +226,9 @@
         }
 
         function connectWebsocket(otp){
-            const canvas = document.getElementById("hanji-display");
+            const canvasContainer = document.getElementById("hanji-display-container");
             const wsHeader = document.getElementById("ws-connection-header")
-            if(!canvas) return;
+            if(!canvasContainer) return;
             if(!window["WebSocket"]) {
                 alert("No Websocket Support")
             }
@@ -222,13 +236,13 @@
             conn.onopen = (ev)=> {
                 console.log("Hanji Physics Connected")
                 if (wsHeader) wsHeader.innerText = "(Connected)"
-                canvas.addEventListener("mousemove", throttle((e)=> sendPointerMove(e, conn),10))
+                canvasContainer.addEventListener("mousemove", throttle((e)=> sendPointerMove(e, conn),10))
             }
 
             conn.onmessage = (ev) => {
                 try {
                     const {userId, type, position, matrix} = JSON.parse(ev.data);
-                    if(!userId || !position) {
+                    if(!userId) {
                         alert("UserID and UserPosition is missing");
                     }
                     const pEvent = new ResponseEvent(userId, type, position)
