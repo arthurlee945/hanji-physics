@@ -1,6 +1,10 @@
 package walker
 
-var Walker struct {
-	x int
-	y int
+type Walker struct {
+	x int32
+	y int32
+}
+
+func NewWalker(x int32, y int32) *Walker {
+	return &Walker{x, y}
 }

@@ -41,6 +41,8 @@ func NewManager(ctx context.Context) *Manager {
 func (m *Manager) setupEventHandlers() {
 	m.handlers[PointerMoveEvent] = handlePointerMoveEvent
 	m.handlers[StartEvent] = handleStartEvent
+	//physics event
+	m.handlers[WalkerEvent] = handleWalkerEvent
 }
 
 func (m *Manager) routeEvent(evt RequestEvent, u *User) error {
