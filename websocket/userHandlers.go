@@ -1,23 +1,22 @@
 package websocket
 
-func handlePointerMoveEvent(evt RequestEvent, u *User) error {
-	pointerMoveEvent := ResponseEvent{
+func handlePointerPositionEvent(evt RequestEvent, u *User) error {
+	pointerPositionEvent := &UserResponseEvent{
 		UserId:   u.id,
-		Type:     PointerMoveEvent,
+		Type:     PointerPositionEvent,
 		Position: evt.Position,
-		Matrix:   []byte("matrix"),
 	}
 	for user := range u.manager.users {
 		if u == user {
 			continue
 		}
-		user.egress <- pointerMoveEvent
+		user.egress <- pointerPositionEvent
 	}
 	return nil
 }
 
 func handleStartEvent(evt RequestEvent, u *User) error {
-	startEvent := ResponseEvent{
+	startEvent := &UserResponseEvent{
 		UserId: u.id,
 		Type:   StartEvent,
 	}

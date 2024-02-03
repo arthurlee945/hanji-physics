@@ -1,11 +1,13 @@
-package scene
+package canvas
 
-type Scene2D struct {
+type Canvas2D struct {
 	Matrix [][]byte
 }
 
-func NewScene2D(x, y uint16) *Scene2D {
-	return &Scene2D{make2DMatrix(x, y)}
+func (c2d *Canvas2D) isCanvas() {}
+
+func NewCanvas2D(x, y uint16) *Canvas2D {
+	return &Canvas2D{make2DMatrix(x, y)}
 }
 
 func make2DMatrix(x, y uint16) [][]byte {

@@ -3,12 +3,13 @@ package websocket
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/arthurlee945/hanji-physics/engine"
 	"github.com/gorilla/websocket"
 )
 
@@ -21,38 +22,23 @@ var (
 )
 
 type Manager struct {
-	users UserList
-	mu    sync.RWMutex
-
+	users    UserList
+	engine   *engine.Engine
+	mu       sync.RWMutex
 	otps     RetentionMap
 	handlers map[EventType]EventHandler
 }
 
 func NewManager(ctx context.Context) *Manager {
+	engine := engine.NewEngine(engine.With2DCanvas(250, 250))
 	m := &Manager{
 		users:    make(UserList),
+		engine:   engine,
 		handlers: make(map[EventType]EventHandler),
 		otps:     NewRetentionMap(ctx, 5*time.Second),
 	}
 	m.setupEventHandlers()
 	return m
-}
-
-func (m *Manager) setupEventHandlers() {
-	m.handlers[PointerMoveEvent] = handlePointerMoveEvent
-	m.handlers[StartEvent] = handleStartEvent
-	//physics event
-	m.handlers[WalkerEvent] = handleWalkerEvent
-}
-
-func (m *Manager) routeEvent(evt RequestEvent, u *User) error {
-	if handler, ok := m.handlers[evt.Type]; ok {
-		if err := handler(evt, u); err != nil {
-			return err
-		}
-		return nil
-	}
-	return errors.New("there is no such event type")
 }
 
 func (m *Manager) AuthenticationHandler(w http.ResponseWriter, r *http.Request) {
@@ -91,8 +77,6 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("new connection")
-
 	//upgrade regular http conn to websocket
 	conn, err := websocketUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -107,6 +91,34 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 	// start User process
 	go user.readPosition()
 	go user.writePosition()
+
+	log.Println("new connection - ", otp)
+}
+
+func (m *Manager) broadcastEngineMatrix() {
+	// ticker := time.NewTicker(25 * time.Millisecond);
+	// for {
+	// 	<-ticker.C
+
+	// }
+}
+
+func (m *Manager) setupEventHandlers() {
+	m.handlers[PointerPositionEvent] = handlePointerPositionEvent
+	m.handlers[StartEvent] = handleStartEvent
+	//physics event
+	m.handlers[WalkerEvent] = handleWalkerEvent
+	m.handlers[EngineEvent] = handle2DEngineEvent
+}
+
+func (m *Manager) routeEvent(evt RequestEvent, u *User) error {
+	if handler, ok := m.handlers[evt.Type]; ok {
+		if err := handler(evt, u); err != nil {
+			return err
+		}
+		return nil
+	}
+	return fmt.Errorf("there is no such event type. got=%s", evt.Type)
 }
 
 func (m *Manager) addUser(User *User) {

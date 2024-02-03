@@ -19,7 +19,6 @@ type User struct {
 	id         string
 	connection *websocket.Conn
 	manager    *Manager
-
 	//egress is used to avoid concurrent writes on the ws conn
 	egress chan ResponseEvent
 }

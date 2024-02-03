@@ -184,25 +184,26 @@
             const {left, top} = e.target.getBoundingClientRect();
             return [e.clientX -left, e.clientY - top]
         }
-
         //#endregion
 
         //#region HANDLERS
-        function handlePointerMove(evt){
+        function handlePointerPosition(evt){
             if(evt.userId === userId) return;
             updateUserElementPos(evt)
         }
         //#endregion
 
-        function routeEvent(event){
-            if (event.type === "undefined" ){
+        function routeEvent(evt){
+            if (evt.type === "undefined" ){
                 alert("no type field in the event")
             }
 
-            switch(event.type) {
-                case "pointermove":
-                    console.log(event.position)
-                    handlePointerMove(event);
+            switch(evt.type) {
+                case "pointerposition":
+                    handlePointerPosition(evt);
+                    break;
+                case "positionleave":
+                    handlePointerPosition(evt);
                     break;
                 case "test":
                     console.log('test');
@@ -219,10 +220,10 @@
             conn.send(JSON.stringify(event))
         }
 
-        function sendPointerMove(e, conn) {
+        function sendPointerPosition(e, conn) {
             if (!conn || !userId) return;
             const [x, y] = getRelativePosition(e);
-            sendEvent("pointermove", {x, y}, conn)
+            sendEvent("pointerposition", {x, y}, conn)
         }
 
         function connectWebsocket(otp){
@@ -236,7 +237,8 @@
             conn.onopen = (ev)=> {
                 console.log("Hanji Physics Connected")
                 if (wsHeader) wsHeader.innerText = "(Connected)"
-                canvasContainer.addEventListener("mousemove", throttle((e)=> sendPointerMove(e, conn),10))
+                canvasContainer.addEventListener("mousemove", throttle((e)=> sendPointerPosition(e, conn),10));
+                canvasContainer.addEventListener("mouseleave", ()=> sendEvent("pointerposition", {x:-9999, y:-9999}, conn));
             }
 
             conn.onmessage = (ev) => {

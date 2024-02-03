@@ -4,13 +4,14 @@ type EventType string
 
 const (
 	//USER EVENT
-	StartEvent        = "start"
-	PointerMoveEvent  = "pointermove"
-	PointerDownEvent  = "pointerdown"
-	PointerUpEvent    = "pointerup"
-	PointerLeaveEvent = "mousedown"
+	StartEvent           = "start"
+	PointerPositionEvent = "pointerposition"
+	PointerDownEvent     = "pointerdown"
+	PointerUpEvent       = "pointerup"
+	PointerLeaveEvent    = "pointerleave"
 	//PHYSICS EVENT
 	WalkerEvent = "walker"
+	EngineEvent = "engine"
 )
 
 type UserPosition struct {
@@ -24,11 +25,23 @@ type RequestEvent struct {
 	Position UserPosition `json:"position"`
 }
 
-type ResponseEvent struct {
+type ResponseEvent interface {
+	isResponseEvent()
+}
+
+type UserResponseEvent struct {
 	UserId   string       `json:"userId"`
 	Type     EventType    `json:"type"`
 	Position UserPosition `json:"position"`
-	Matrix   interface{}  `json:"matrix"`
 }
+
+func (ure *UserResponseEvent) isResponseEvent() {}
+
+type EngineResponseEvent struct {
+	Type   EventType   `json:"type"`
+	Matrix interface{} `json:"matrix"`
+}
+
+func (ere *EngineResponseEvent) isResponseEvent() {}
 
 type EventHandler func(evt RequestEvent, u *User) error
