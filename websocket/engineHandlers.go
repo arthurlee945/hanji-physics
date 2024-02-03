@@ -1,6 +1,8 @@
 package websocket
 
-import "github.com/arthurlee945/hanji-physics/engine/canvas"
+import (
+	"github.com/arthurlee945/hanji-physics/engine/canvas"
+)
 
 func handleWalkerEvent(evt RequestEvent, u *User) error {
 	return nil

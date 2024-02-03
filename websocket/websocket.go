@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/arthurlee945/hanji-physics/engine"
+	"github.com/arthurlee945/hanji-physics/engine/canvas"
 	"github.com/gorilla/websocket"
 )
 
@@ -93,14 +94,25 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 	go user.writePosition()
 
 	log.Println("new connection - ", otp)
+	m.broadcastEngineMatrix()
 }
 
 func (m *Manager) broadcastEngineMatrix() {
-	// ticker := time.NewTicker(25 * time.Millisecond);
-	// for {
-	// 	<-ticker.C
-
-	// }
+	ticker := time.NewTicker(25 * time.Millisecond)
+	for {
+		<-ticker.C
+		if len(m.users) == 0 {
+			continue
+		}
+		matrix := m.engine.Canvas.(*canvas.Canvas2D).Matrix
+		for user := range m.users {
+			engineEvent := &EngineResponseEvent{
+				Type:   EngineEvent,
+				Matrix: matrix,
+			}
+			user.egress <- engineEvent
+		}
+	}
 }
 
 func (m *Manager) setupEventHandlers() {

@@ -59,8 +59,8 @@
     .hanji-display-container {
         position:relative;
         border:1px solid #e4e4e4;
-        height:100%;
-        width:100%;
+        height:700px;
+        width:700px;
         border-radius: 25px;
         overflow: hidden;
     }
@@ -124,11 +124,26 @@
             };
         }
 
-        class ResponseEvent {
+        class RequestEvent {
             constructor(userId, type, position) {
                 this.userId = userId;
                 this.type = type;
                 this.position = position;
+            }
+        }
+
+        class UserResponseEvent {
+            constructor(userId, type, position) {
+                this.userId = userId;
+                this.type = type;
+                this.position = position;
+            }
+        }
+
+        class EngineResponseEvent {
+            constructor(type, matrix){
+                this.type = type
+                this.mattrix = matrix
             }
         }
 
@@ -163,6 +178,7 @@
         }
 
         function logUser(evt) {
+            if (!evt.position) return;
             if (!users[evt.userId]) {
                 users[evt.userId] = new LoggedUser(evt.userId, getRandRGB(), evt.position, evt.position)
                 addUserElement(users[evt.userId]);
@@ -202,11 +218,11 @@
                 case "pointerposition":
                     handlePointerPosition(evt);
                     break;
-                case "positionleave":
+                case "pointerleave":
                     handlePointerPosition(evt);
                     break;
-                case "test":
-                    console.log('test');
+                case "engine":
+                    console.log(evt);
                     break;
                 default:
                     alert("unsupported type");
@@ -216,7 +232,7 @@
 
         function sendEvent(eventName, position, conn) {
             if (!conn || !userId) return;
-            const event = new ResponseEvent(userId, eventName, position)
+            const event = new RequestEvent(userId, eventName, position)
             conn.send(JSON.stringify(event))
         }
 
@@ -227,6 +243,7 @@
         }
 
         function connectWebsocket(otp){
+            const userEvents = ["pointerposition",  "pointerleave", "start"];
             const canvasContainer = document.getElementById("hanji-display-container");
             const wsHeader = document.getElementById("ws-connection-header")
             if(!canvasContainer) return;
@@ -244,12 +261,17 @@
             conn.onmessage = (ev) => {
                 try {
                     const {userId, type, position, matrix} = JSON.parse(ev.data);
-                    if(!userId) {
-                        alert("UserID and UserPosition is missing");
+                    if(!type) {
+                        alert("typerID is missing");
                     }
-                    const pEvent = new ResponseEvent(userId, type, position)
-                    logUser(pEvent);
-                    routeEvent(pEvent);
+                    let resEvent;
+                    if (userEvents.includes(type)){
+                        resEvent = new UserResponseEvent(userId, type, position)
+                    }else {
+                        resEvent = new EngineResponseEvent(type, matrix)
+                    }
+                    logUser(resEvent);
+                    routeEvent(resEvent);
                 }catch(err){
                     console.error(err)
                 }
