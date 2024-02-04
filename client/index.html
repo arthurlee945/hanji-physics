@@ -56,18 +56,22 @@
     .hanji-header:hover::after{
         width:100%;
     }
+    .hanji-container {
+        padding:25px;
+        border:1px solid #e4e4e4;
+        border-radius: 25px;
+        box-sizing: content-box;
+        overflow: hidden;
+
+    }
     .hanji-display-container {
         position:relative;
-        border:1px solid #e4e4e4;
         width:400px;
         aspect-ratio: 1/1;
-        border-radius: 25px;
-        overflow: hidden;
-        padding:25px;
-        box-sizing: content-box;
     }
 
     .hanji-user-element{
+        z-index: 9999;
         position:absolute;
         display:grid;
         place-items: center;
@@ -93,12 +97,19 @@
 <body>
     <section class = "main-container">
         <h1 class="hanji-header"><a href="https://github.com/arthurlee945/hanji-physics" target="_blank">Hanji Physics <span id="ws-connection-header">(Closed)</span></a></h1>
-        <div id="hanji-display-container" class="hanji-display-container">
-            <canvas id="hanji-display" class="hanji-display" />
+        <div id="hanji-container" class="hanji-container">
+            <div id="hanji-display-container" class="hanji-display-container">
+                <canvas id="hanji-display" class="hanji-display" />
+            </div>
         </div>
     </div>
     <script>
+        
+    </script>
+    <script id="connection">
         let userId;
+        let currPos = {x:-9999, y: -9999};
+        let conn;
         const users = {};
 
         function throttle(cb, delay = 500) {
@@ -209,15 +220,13 @@
             if(evt.userId === userId) return;
             updateUserElementPos(evt)
         }
+
         function handleEngine(evt){
             const canvas = document.getElementById("hanji-display");
             if (!canvas || !evt.matrix) return;
             const ctx = canvas.getContext("2d");
-            // var imgData = new ImageData(new Uint8ClampedArray(test), 160, 120)
-
-            // ctx.fillStyle = "white";
-            // const matrix = evt.matrix;
-            // ctx.putImageData(imgData, 0, 0);
+            var imgData = new ImageData(new Uint8ClampedArray(evt.matrix), 400, 400)
+            ctx.putImageData(imgData, 0, 0);
         }
         //#endregion
 
@@ -251,46 +260,66 @@
         function sendPointerPosition(e, conn) {
             if (!conn || !userId) return;
             const [x, y] = getRelativePosition(e);
+            currPos = {x, y}
             sendEvent("pointerposition", {x, y}, conn)
         }
 
+        let zero;
+        function renderEngineFrame(t, eventName, currPos, conn) {
+            if (!zero) {
+                zero = t;
+            }
+            if(t- zero >= 35) {
+                sendEvent(eventName, currPos, conn)
+                zero = t;
+            } 
+            window.requestAnimationFrame((t) => renderEngineFrame(t, eventName, currPos, conn))
+
+        }
+
         function connectWebsocket(otp){
-            const userEvents = ["pointerposition",  "pointerleave", "start"];
-            const canvasContainer = document.getElementById("hanji-display-container");
-            const wsHeader = document.getElementById("ws-connection-header")
-            if(!canvasContainer) return;
-            if(!window["WebSocket"]) {
-                alert("No Websocket Support")
-            }
-            const conn = new WebSocket("wss://" + document.location.host + `/ws?otp=${otp}`);
-            conn.onopen = (ev)=> {
-                console.log("Hanji Physics Connected")
-                if (wsHeader) wsHeader.innerText = "(Connected)"
-                canvasContainer.addEventListener("mousemove", throttle((e)=> sendPointerPosition(e, conn),10));
-                canvasContainer.addEventListener("mouseleave", ()=> sendEvent("pointerposition", {x:-9999, y:-9999}, conn));
-            }
-
-            conn.onmessage = (ev) => {
-                try {
-                    const {userId, type, position, matrix} = JSON.parse(ev.data);
-                    if(!type) {
-                        alert("typerID is missing");
-                    }
-                    let resEvent;
-                    if (userEvents.includes(type)){
-                        resEvent = new UserResponseEvent(userId, type, position)
-                    }else {
-                        resEvent = new EngineResponseEvent(type, matrix)
-                    }
-                    logUser(resEvent);
-                    routeEvent(resEvent);
-                }catch(err){
-                    console.error(err)
+            try{
+                const userEvents = ["pointerposition",  "pointerleave", "start"];
+                const canvasContainer = document.getElementById("hanji-display-container");
+                const wsHeader = document.getElementById("ws-connection-header")
+                if(!canvasContainer) return;
+                if(!window["WebSocket"]) {
+                    alert("No Websocket Support")
                 }
-            }
-
-            conn.onclose = (ev) => {
-                if (!wsHeader) wsHeader.innerText = "(Closed)"
+                const conn = new WebSocket("wss://" + document.location.host + `/ws?otp=${otp}`);
+                conn.onopen = (ev)=> {
+                    console.log("Hanji Physics Connected")
+                    if (wsHeader) wsHeader.innerText = "(Connected)"
+                    canvasContainer.addEventListener("mousemove", throttle((e)=> sendPointerPosition(e, conn),10));
+                    canvasContainer.addEventListener("mouseleave", ()=> sendEvent("pointerposition", {x:-9999, y:-9999}, conn));
+                    window.requestAnimationFrame((t) => renderEngineFrame(t, 'engine', currPos, conn ));
+                }
+    
+                conn.onmessage = (ev) => {
+                    try {
+                        const {userId, type, position, matrix} = JSON.parse(ev.data);
+                        if(!type) {
+                            alert("typerID is missing");
+                        }
+                        let resEvent;
+                        if (userEvents.includes(type)){
+                            resEvent = new UserResponseEvent(userId, type, position)
+                        }else {
+                            resEvent = new EngineResponseEvent(type, matrix)
+                        }
+                        logUser(resEvent);
+                        routeEvent(resEvent);
+                    }catch(err){
+                        console.error(err)
+                    }
+                }
+    
+                conn.onclose = (ev) => {
+                    if (!wsHeader) wsHeader.innerText = "(Closed)"
+                }
+                return true
+            }catch(er){
+                return false
             }
         }
 
@@ -305,7 +334,7 @@
                 if (!res.ok) throw Error("unauthorized")
                 const data = await res.json();
                 userId = data.otp;
-                connectWebsocket(data.otp)
+                return connectWebsocket(data.otp)
             }catch(err) {
                 alert(err)
             }
@@ -315,6 +344,7 @@
             authenticate();
             updateCanvasSize();
         })
+
         window.addEventListener("resize", updateCanvasSize)
     </script>
 </body>

@@ -1,15 +1,11 @@
 package websocket
 
-import (
-	"github.com/arthurlee945/hanji-physics/engine/canvas"
-)
-
 func handleWalkerEvent(evt RequestEvent, u *User) error {
 	return nil
 }
 
-func handle2DEngineEvent(evt RequestEvent, u *User) error {
-	matrix := u.manager.engine.Canvas.(*canvas.Canvas2D).Matrix
+func handleEngineEvent(evt RequestEvent, u *User) error {
+	matrix := u.manager.engine.Canvas.Matrix
 	for user := range u.manager.users {
 		engineEvent := &EngineResponseEvent{
 			Type:   EngineEvent,

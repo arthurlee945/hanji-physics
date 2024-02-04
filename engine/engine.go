@@ -4,8 +4,14 @@ import "github.com/arthurlee945/hanji-physics/engine/canvas"
 
 type EngineOpts func(*Engine)
 
+type Setting struct {
+	width  int
+	height int
+}
+
 type Engine struct {
-	Canvas canvas.Canvas
+	Canvas *canvas.Canvas
+	Setting
 }
 
 func NewEngine(opts ...EngineOpts) *Engine {
@@ -16,14 +22,14 @@ func NewEngine(opts ...EngineOpts) *Engine {
 	return engine
 }
 
-func With2DCanvas(x, y uint16) func(*Engine) {
+func WithCanvas(x, y int) func(*Engine) {
 	return func(engine *Engine) {
-		engine.Canvas = canvas.NewCanvas2D(x, y)
+		engine.Canvas = canvas.NewCanvas(x, y)
 	}
 }
 
-func With3DScene(x, y, z uint16) func(*Engine) {
+func SetSettings(setting Setting) func(*Engine) {
 	return func(engine *Engine) {
-		engine.Canvas = canvas.NewCanvas3D(x, y, z)
+		engine.Setting = setting
 	}
 }

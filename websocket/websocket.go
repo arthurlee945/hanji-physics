@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/arthurlee945/hanji-physics/engine"
-	"github.com/arthurlee945/hanji-physics/engine/canvas"
 	"github.com/gorilla/websocket"
 )
 
@@ -31,7 +30,7 @@ type Manager struct {
 }
 
 func NewManager(ctx context.Context) *Manager {
-	engine := engine.NewEngine(engine.With2DCanvas(400, 400))
+	engine := engine.NewEngine(engine.WithCanvas(400, 400))
 	m := &Manager{
 		users:    make(UserList),
 		engine:   engine,
@@ -94,25 +93,6 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 	go user.writePosition()
 
 	log.Println("new connection - ", otp)
-	m.broadcastEngineMatrix()
-}
-
-func (m *Manager) broadcastEngineMatrix() {
-	ticker := time.NewTicker(25 * time.Millisecond)
-	for {
-		<-ticker.C
-		if len(m.users) == 0 {
-			continue
-		}
-		matrix := m.engine.Canvas.(*canvas.Canvas2D).Matrix
-		for user := range m.users {
-			engineEvent := &EngineResponseEvent{
-				Type:   EngineEvent,
-				Matrix: matrix,
-			}
-			user.egress <- engineEvent
-		}
-	}
 }
 
 func (m *Manager) setupEventHandlers() {
@@ -120,7 +100,7 @@ func (m *Manager) setupEventHandlers() {
 	m.handlers[StartEvent] = handleStartEvent
 	//physics event
 	m.handlers[WalkerEvent] = handleWalkerEvent
-	m.handlers[EngineEvent] = handle2DEngineEvent
+	m.handlers[EngineEvent] = handleEngineEvent
 }
 
 func (m *Manager) routeEvent(evt RequestEvent, u *User) error {
