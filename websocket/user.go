@@ -71,14 +71,14 @@ func (u *User) writePosition() {
 	ticker := time.NewTicker(pingInterval)
 	for {
 		select {
-		case position, ok := <-u.egress:
+		case resEvent, ok := <-u.egress:
 			if !ok {
 				if err := u.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
 					log.Println("Connection Closed: ", err)
 				}
 				return
 			}
-			data, err := json.Marshal(position)
+			data, err := json.Marshal(resEvent)
 			if err != nil {
 				log.Println("Error occured: ", err)
 				break

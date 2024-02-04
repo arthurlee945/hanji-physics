@@ -17,3 +17,13 @@
   \_| ||        \_|  |        \_|  |        \_| ||   |  One Bored Monkey
 
 ```
+
+**Just Run**
+
+```
+air --build.cmd "go build -o tmp main/main.go"
+
+or
+
+go build main/main.go && ./main.exe
+```

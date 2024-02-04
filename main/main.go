@@ -2,13 +2,11 @@ package main
 
 import "github.com/arthurlee945/hanji-physics/client"
 
-// "github.com/arthurlee945/hanji-physics/engine/scene"
-
 func main() {
 	client.Start()
-	// s2d := scene.NewScene2D(10, 5)
-	// fmt.Println(s2d.Matrix)
 
+	// s2d := canvas.NewCanvas2D(5, 3)
+	// fmt.Println(s2d)
 	// s3d := scene.NewScene3D(5, 4, 3)
 	// fmt.Println(s3d)
 }

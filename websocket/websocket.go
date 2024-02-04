@@ -31,7 +31,7 @@ type Manager struct {
 }
 
 func NewManager(ctx context.Context) *Manager {
-	engine := engine.NewEngine(engine.With2DCanvas(250, 250))
+	engine := engine.NewEngine(engine.With2DCanvas(400, 400))
 	m := &Manager{
 		users:    make(UserList),
 		engine:   engine,

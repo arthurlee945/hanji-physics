@@ -16,13 +16,13 @@ func NewEngine(opts ...EngineOpts) *Engine {
 	return engine
 }
 
-func With2DCanvas(x uint16, y uint16) func(*Engine) {
+func With2DCanvas(x, y uint16) func(*Engine) {
 	return func(engine *Engine) {
 		engine.Canvas = canvas.NewCanvas2D(x, y)
 	}
 }
 
-func With3DScene(x uint16, y uint16, z uint16) func(*Engine) {
+func With3DScene(x, y, z uint16) func(*Engine) {
 	return func(engine *Engine) {
 		engine.Canvas = canvas.NewCanvas3D(x, y, z)
 	}

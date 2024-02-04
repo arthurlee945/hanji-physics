@@ -1,7 +1,7 @@
 package canvas
 
 type Canvas2D struct {
-	Matrix [][]byte
+	Matrix [][]uint16
 }
 
 func (c2d *Canvas2D) isCanvas() {}
@@ -10,11 +10,12 @@ func NewCanvas2D(x, y uint16) *Canvas2D {
 	return &Canvas2D{make2DMatrix(x, y)}
 }
 
-func make2DMatrix(x, y uint16) [][]byte {
-	matrix := make([][]byte, y)
-	bytes := make([]byte, x*y)
-	for i := 0; i < int(y); i++ {
-		matrix[i] = bytes[i*int(x) : (i+1)*int(x)]
+func make2DMatrix(x, y uint16) [][]uint16 {
+	matrix := make([][]uint16, y)
+	// bytes := make([]uint16, x*y)
+	for i := range matrix {
+		// matrix[i] = bytes[i*int(x) : (i+1)*int(x) : (i+1)*int(x)]
+		matrix[i] = make([]uint16, x)
 	}
 	return matrix
 }

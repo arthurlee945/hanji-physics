@@ -59,10 +59,12 @@
     .hanji-display-container {
         position:relative;
         border:1px solid #e4e4e4;
-        height:700px;
-        width:700px;
+        width:400px;
+        aspect-ratio: 1/1;
         border-radius: 25px;
         overflow: hidden;
+        padding:25px;
+        box-sizing: content-box;
     }
 
     .hanji-user-element{
@@ -143,7 +145,7 @@
         class EngineResponseEvent {
             constructor(type, matrix){
                 this.type = type
-                this.mattrix = matrix
+                this.matrix = matrix
             }
         }
 
@@ -207,6 +209,16 @@
             if(evt.userId === userId) return;
             updateUserElementPos(evt)
         }
+        function handleEngine(evt){
+            const canvas = document.getElementById("hanji-display");
+            if (!canvas || !evt.matrix) return;
+            const ctx = canvas.getContext("2d");
+            // var imgData = new ImageData(new Uint8ClampedArray(test), 160, 120)
+
+            // ctx.fillStyle = "white";
+            // const matrix = evt.matrix;
+            // ctx.putImageData(imgData, 0, 0);
+        }
         //#endregion
 
         function routeEvent(evt){
@@ -222,7 +234,7 @@
                     handlePointerPosition(evt);
                     break;
                 case "engine":
-                    console.log(evt);
+                    handleEngine(evt);
                     break;
                 default:
                     alert("unsupported type");
