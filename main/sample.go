@@ -331,10 +331,3 @@ func (c *constraint) resolve() {
 	c.p2.x -= px
 	c.p2.y -= py
 }
-
-func httpLink(addr string) string {
-	if addr[0] == ':' {
-		addr = "localhost" + addr
-	}
-	return "http://" + addr
-}
