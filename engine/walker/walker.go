@@ -38,32 +38,33 @@ func (w *Walker) attractionMove() {
 		w.y += float64(newY)
 	} else {
 		randX, randY := rand.Float32(), rand.Float32()
-
+		newX, newY := -1+randX*2, -1+randY*2
+		distX, distY := w.stdDevDistance(0.5, 1, newX), w.stdDevDistance(0.5, 1, newY)
 		if w.x < w.px {
 			if randX < 0.2 {
-				w.x -= 1
+				w.x -= distX
 			} else if randX > 0.5 {
-				w.x += 1
+				w.x += distX
 			}
 		} else {
 			if randX < 0.2 {
-				w.x += 1
+				w.x += distX
 			} else if randX > 0.5 {
-				w.x -= 1
+				w.x -= distX
 			}
 		}
 
 		if w.y < w.py {
 			if randY < 0.2 {
-				w.y -= 1
+				w.y -= distY
 			} else if randY > 0.5 {
-				w.y += 1
+				w.y += distY
 			}
 		} else {
 			if randY < 0.2 {
-				w.y += 1
+				w.y += distY
 			} else if randY > 0.5 {
-				w.y -= 1
+				w.y -= distY
 			}
 		}
 	}
@@ -74,4 +75,21 @@ func (w *Walker) move() {
 	newY := rand.Intn(3) - 1
 	w.x += float64(newX)
 	w.y += float64(newY)
+}
+
+func (w *Walker) stdDevDistance(sd, mean, num float32) float64 {
+	return float64(sd*num + mean)
+}
+
+func (w *Walker) monteCarloRand(min, max float64) float64 {
+	for {
+		probability, r2 := floatInBetween(min, max), floatInBetween(min, max)
+		if r2 < probability {
+			return r2
+		}
+	}
+}
+
+func floatInBetween(min, max float64) float64 {
+	return min + rand.Float64()*(max-min)
 }
