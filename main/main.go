@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/arthurlee945/hanji-physics/engine/walker"
+	"github.com/arthurlee945/hanji-physics/walker"
 	"github.com/fzipp/canvas"
 )
 
