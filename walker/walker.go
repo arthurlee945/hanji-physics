@@ -3,7 +3,7 @@ package walker
 import (
 	"math/rand"
 
-	"github.com/arthurlee945/hanji-physics/hpMath"
+	"github.com/arthurlee945/hanji-physics/hmath"
 	"github.com/fzipp/canvas"
 )
 
@@ -40,7 +40,7 @@ func (w *Walker) attractionMove() {
 	} else {
 		randX, randY := rand.Float32(), rand.Float32()
 		newX, newY := -1+randX*2, -1+randY*2
-		distX, distY := hpMath.StdDeviation(0.5, 1, float64(newX)), hpMath.StdDeviation(0.5, 1, float64(newY))
+		distX, distY := hmath.StdDeviation(0.5, 1, float64(newX)), hmath.StdDeviation(0.5, 1, float64(newY))
 		if w.x < w.px {
 			if randX < 0.2 {
 				w.x -= distX

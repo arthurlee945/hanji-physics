@@ -1,4 +1,4 @@
-package hpMath
+package hmath
 
 import "math/rand"
 
