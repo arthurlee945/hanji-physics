@@ -12,7 +12,7 @@ const (
 	YWRAP            = 1 << YWRAP_BITWISE
 	ZWRAP_BITWISE    = 8
 	ZWRAP            = 1 << ZWRAP_BITWISE
-	PERMUTATION_SIZE = 4095 // 256 * 16 - 1
+	PERMUTATION_SIZE = 255 // 256 * 16 - 1
 	OCTAVES          = 4
 	AMP_FALLOFF      = 0.5
 )
@@ -40,7 +40,7 @@ func NewNoise(opts ...NoiseFn) *Noise {
 	return noise
 }
 
-func (n *Noise) Generate(x, y, z float64) float64 {
+func (n *Noise) Run(x, y, z float64) float64 {
 	if x < 0 {
 		x = -x
 	}
@@ -58,9 +58,9 @@ func (n *Noise) Generate(x, y, z float64) float64 {
 		r    float64 = 0
 		ampl float64 = 0.5
 	)
+
 	for i := 0; i < n.octaves; i++ {
 		of := xi + (yi << YWRAP_BITWISE) + (zi << ZWRAP_BITWISE)
-
 		rxf := scaledCos(xoff)
 		ryf := scaledCos(yoff)
 
