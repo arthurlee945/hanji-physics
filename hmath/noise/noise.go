@@ -9,10 +9,10 @@ import (
 
 const (
 	YWRAP_BITWISE    = 4
-	YWRAP            = 1 << YWRAP_BITWISE
+	YWRAP            = 1 << YWRAP_BITWISE //16
 	ZWRAP_BITWISE    = 8
-	ZWRAP            = 1 << ZWRAP_BITWISE
-	PERMUTATION_SIZE = 255 // 256 * 16 - 1
+	ZWRAP            = 1 << ZWRAP_BITWISE // 256
+	PERMUTATION_SIZE = 255                // 256 * 16 - 1
 	OCTAVES          = 4
 	AMP_FALLOFF      = 0.5
 )
@@ -55,7 +55,7 @@ func (n *Noise) Run(x, y, z float64) float64 {
 	xoff, yoff, zoff := x-float64(xi), y-float64(yi), z-float64(zi)
 
 	var (
-		r    float64 = 0
+		r    float64 = 0 //result
 		ampl float64 = 0.5
 	)
 

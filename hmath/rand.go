@@ -39,5 +39,5 @@ func (lcg *LCG) GetSeed() int {
 
 func (lcg *LCG) Rand() float64 {
 	lcg.z = (lcg.a*lcg.z + lcg.coprime) % lcg.max
-	return float64(lcg.z / lcg.max)
+	return float64(lcg.z) / float64(lcg.max)
 }
