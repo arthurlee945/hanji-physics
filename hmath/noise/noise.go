@@ -108,7 +108,7 @@ func WithPermutationSize(size int) NoiseFn {
 	}
 }
 
-func WithOctaveDetail(oct int, ampFO float64) NoiseFn {
+func WithDetail(oct int, ampFO float64) NoiseFn {
 	return func(n *Noise) {
 		n.octaves = oct
 		n.ampFO = ampFO
