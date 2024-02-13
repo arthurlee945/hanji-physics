@@ -1,20 +1,24 @@
 package walker
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/arthurlee945/hanji-physics/hmath"
+	"github.com/arthurlee945/hanji-physics/hmath/noise"
 	"github.com/fzipp/canvas"
 )
 
 type Walker struct {
-	x, y   float64
-	px, py float64
+	x, y          float64
+	px, py        float64
+	width, height int
+	noise         *noise.Noise
 }
 
 func NewWalker(canvasWidth, canvasHeight int) *Walker {
 	pointX, pointY := float64(canvasWidth/2), float64(canvasHeight/2)
-	return &Walker{pointX, pointY, pointX, pointY}
+	return &Walker{pointX, pointY, pointX, pointY, canvasWidth, canvasHeight, noise.NewNoise()}
 }
 
 func (w *Walker) Draw(ctx *canvas.Context) {
@@ -69,6 +73,20 @@ func (w *Walker) attractionMove() {
 			}
 		}
 	}
+}
+
+func (w *Walker) noiseMove() {
+	newX, errX := hmath.Map(w.noise.Run(w.x, w.y, 0), 0, 1, 0, float64(w.width))
+	if errX != nil {
+		fmt.Println(errX)
+	}
+	newY, errY := hmath.Map(w.noise.Run(w.x, w.y, 0), 0, 1, 0, float64(w.height))
+	if errY != nil {
+		fmt.Println(errY)
+	}
+
+	w.x += newX
+	w.y += newY
 }
 
 func (w *Walker) move() {
