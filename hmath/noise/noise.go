@@ -12,7 +12,7 @@ const (
 	YWRAP            = 1 << YWRAP_BITWISE //16
 	ZWRAP_BITWISE    = 8
 	ZWRAP            = 1 << ZWRAP_BITWISE // 256
-	PERMUTATION_SIZE = 255                // 256 * 16 - 1
+	PERMUTATION_SIZE = 4095               // 256 * 16 - 1
 	OCTAVES          = 4
 	AMP_FALLOFF      = 0.5
 )
@@ -64,6 +64,7 @@ func (n *Noise) Run(x, y, z float64) float64 {
 		rxf := scaledCos(xoff)
 		ryf := scaledCos(yoff)
 
+		//Get Noise From X and Y
 		n1 := n.permut[of&n.permutSize]
 		n1 += rxf * (n.permut[(of+1)&n.permutSize] - n1)
 		n2 := n.permut[(of+YWRAP)&n.permutSize]
@@ -71,6 +72,8 @@ func (n *Noise) Run(x, y, z float64) float64 {
 		n1 += ryf * (n2 - n1)
 
 		of += ZWRAP
+
+		//Get Noise From XYNoise and Z
 		n2 = n.permut[of&n.permutSize]
 		n2 += rxf * (n.permut[(of+1)&n.permutSize] - n2)
 		n3 := n.permut[(of+YWRAP)&n.permutSize]
@@ -88,7 +91,6 @@ func (n *Noise) Run(x, y, z float64) float64 {
 			xi++
 			xoff--
 		}
-
 		if yoff >= 1 {
 			yi++
 			yoff--
@@ -134,6 +136,7 @@ func getPermutations(size int) []float64 {
 	return permutations
 }
 
+// Smoothing Function
 func scaledCos(v float64) float64 {
 	return 0.5 * (1 - math.Cos(v*math.Pi))
 }

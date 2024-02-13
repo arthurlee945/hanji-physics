@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/arthurlee945/hanji-physics/walker"
+	"github.com/arthurlee945/hanji-physics/engine/noiseview"
 	"github.com/fzipp/canvas"
 )
 
@@ -33,7 +33,8 @@ func main() {
 func runCanvas(ctx *canvas.Context) {
 	ctx.SetFillStyle(color.RGBA{0x08, 0x08, 0x08, 0xff})
 
-	walker := walker.NewWalker(ctx.CanvasWidth(), ctx.CanvasHeight())
+	// walker := walker.NewWalker(ctx.CanvasWidth(), ctx.CanvasHeight())
+	noiseview := noiseview.NewNoiseView(ctx.CanvasWidth(), ctx.CanvasHeight())
 
 	for {
 		select {
@@ -41,9 +42,10 @@ func runCanvas(ctx *canvas.Context) {
 			if _, ok := event.(canvas.CloseEvent); ok {
 				return
 			}
-			walker.Handle(event)
+			// walker.Handle(event)
 		default:
-			walker.Draw(ctx)
+			// walker.Draw(ctx)
+			noiseview.Draw(ctx)
 			ctx.Flush()
 			time.Sleep(5 * time.Millisecond)
 		}
