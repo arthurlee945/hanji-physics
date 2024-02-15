@@ -120,8 +120,8 @@ func newCloth(canvasWidth int, boundsX, boundsY float64) *cloth {
 		boundsY: boundsY,
 	}
 	startX := float64(canvasWidth)/2 - clothWidth*spacing/2
-	for y := 0; y <= clothHeight; y++ {
-		for x := 0; x <= clothWidth; x++ {
+	for y := range clothHeight {
+		for x := range clothWidth {
 			p := newPoint(
 				startX+float64(x*spacing),
 				startY+float64(y*spacing),

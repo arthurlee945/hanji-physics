@@ -69,7 +69,7 @@ func (n *Noise) Run(x, y, z float64) float64 {
 		n1 += rxf * (n.permut[(of+1)&n.permutSize] - n1)
 		n2 := n.permut[(of+YWRAP)&n.permutSize]
 		n2 += rxf * (n.permut[(of+YWRAP+1)&n.permutSize] - n2)
-		n1 += ryf * (n2 - n1)
+		n1 += ryf * (n2 - n1) //Lerp between n1 and n2 at ryf
 
 		of += ZWRAP
 
@@ -78,9 +78,9 @@ func (n *Noise) Run(x, y, z float64) float64 {
 		n2 += rxf * (n.permut[(of+1)&n.permutSize] - n2)
 		n3 := n.permut[(of+YWRAP)&n.permutSize]
 		n3 += rxf * (n.permut[(of+YWRAP+1)&n.permutSize] - n3)
-		n2 += ryf * (n3 - n2)
+		n2 += ryf * (n3 - n2) //Lerp between n3 and n2 at ryf
 
-		n1 += scaledCos(zoff) * (n2 - n1)
+		n1 += scaledCos(zoff) * (n2 - n1) //Lerp between prev two Lerps (n1 and n2) at ryf
 
 		r += n1 * ampl
 		ampl *= n.ampFO

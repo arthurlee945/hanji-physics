@@ -1,6 +1,6 @@
 module github.com/arthurlee945/hanji-physics
 
-go 1.21.6
+go 1.22
 
 require github.com/fzipp/canvas v0.4.0
 
