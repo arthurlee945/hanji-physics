@@ -7,39 +7,35 @@ import (
 
 	"github.com/arthurlee945/hanji-physics/hmath"
 	"github.com/arthurlee945/hanji-physics/hmath/noise"
+	"github.com/arthurlee945/hanji-physics/hmath/vec"
 	"github.com/fzipp/canvas"
 )
 
 type NoiseView struct {
-	x     int
-	y     int
-	xoff  float64
-	zoff  float64
-	noise *noise.Noise
+	size   *vec.Vec2
+	offset *vec.Vec2
+	noise  *noise.Noise
 }
 
 func NewNoiseView(canvasWidth, canvasHeight int) *NoiseView {
 	noiseview := &NoiseView{
-		x:     canvasWidth,
-		y:     canvasHeight,
-		xoff:  0,
-		zoff:  0,
-		noise: noise.NewNoise(noise.WithSeededPermutation(8, noise.PERMUTATION_SIZE)),
+		size:   &vec.Vec2{0, 0},
+		offset: &vec.Vec2{0, 0},
+		noise:  noise.NewNoise(noise.WithSeededPermutation(8, noise.PERMUTATION_SIZE)),
 	}
 	return noiseview
 }
 
 func (nv *NoiseView) Draw(ctx *canvas.Context) {
-
 	nv.draw2D(ctx)
 }
 
 func (nv *NoiseView) draw1D(ctx *canvas.Context) {
-	xoff := nv.xoff
-	ctx.ClearRect(0, 0, float64(nv.x), float64(nv.y))
+	xoff := nv.offset[0]
+	ctx.ClearRect(0, 0, float64(nv.size[0]), float64(nv.size[1]))
 	ctx.BeginPath()
-	for x := range nv.x {
-		y, err := hmath.Map(nv.noise.Run(xoff, 0, 0), 0, 1, 0, float64(nv.y))
+	for x := range int(nv.size[0]) {
+		y, err := hmath.Map(nv.noise.Run(xoff, 0, 0), 0, 1, 0, float64(nv.size[1]))
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -47,17 +43,17 @@ func (nv *NoiseView) draw1D(ctx *canvas.Context) {
 		ctx.Stroke()
 		xoff += 0.01
 	}
-	nv.xoff += 0.01
+	nv.offset[0] += 0.01
 }
 
 func (nv *NoiseView) draw2D(ctx *canvas.Context) {
-	xoff := 0.0
-	ctx.ClearRect(0, 0, float64(nv.x), float64(nv.y))
-	rgbaImg := image.NewRGBA(image.Rect(0, 0, nv.x, nv.y))
-	for x := range nv.x {
+	xoff := nv.offset[0]
+	ctx.ClearRect(0, 0, float64(nv.size[0]), float64(nv.size[1]))
+	rgbaImg := image.NewRGBA(image.Rect(0, 0, int(nv.size[0]), int(nv.size[1])))
+	for x := range int(nv.size[0]) {
 		yoff := 0.0
-		for y := range nv.y {
-			brightness, err := hmath.Map(nv.noise.Run(xoff, yoff, nv.zoff), 0, 1, 0, 255)
+		for y := range int(nv.size[1]) {
+			brightness, err := hmath.Map(nv.noise.Run(xoff, yoff, nv.offset[1]), 0, 1, 0, 255)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
@@ -67,8 +63,10 @@ func (nv *NoiseView) draw2D(ctx *canvas.Context) {
 		xoff += 0.01
 	}
 	ctx.DrawImage(ctx.CreateImageData(rgbaImg), 0, 0)
-	nv.zoff += 0.01
+	nv.offset[1] += 0.01
 }
+
+func (nv *NoiseView) Handle(evt canvas.Event) {}
 
 // func (nv *NoiseView) draw2D(ctx *canvas.Context) {
 // 	xoff := 0.0

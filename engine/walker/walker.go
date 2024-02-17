@@ -6,25 +6,31 @@ import (
 
 	"github.com/arthurlee945/hanji-physics/hmath"
 	"github.com/arthurlee945/hanji-physics/hmath/noise"
+	"github.com/arthurlee945/hanji-physics/hmath/vec"
 	"github.com/fzipp/canvas"
 )
 
 type Walker struct {
-	x, y          float64
-	px, py        float64
-	xoff, yoff    float64
-	width, height int
-	noise         *noise.Noise
+	loc    *vec.Vec2
+	pLoc   *vec.Vec2
+	offset *vec.Vec2
+	size   *vec.Vec2
+	noise  *noise.Noise
 }
 
 func NewWalker(canvasWidth, canvasHeight int) *Walker {
 	pointX, pointY := float64(canvasWidth/2), float64(canvasHeight/2)
-	return &Walker{pointX, pointY, pointX, pointY, 0, 10000, canvasWidth, canvasHeight, noise.NewNoise()}
+	return &Walker{
+		loc:    &vec.Vec2{pointX, pointY},
+		pLoc:   &vec.Vec2{pointX, pointY},
+		offset: &vec.Vec2{0, 10000},
+		size:   &vec.Vec2{float64(canvasWidth), float64(canvasHeight)},
+		noise:  noise.NewNoise()}
 }
 
 func (w *Walker) Draw(ctx *canvas.Context) {
 	w.noiseMove()
-	ctx.Rect(w.x, w.y, 1, 1)
+	ctx.Rect(w.loc[0], w.loc[1], 1, 1)
 	ctx.Fill()
 }
 func (w *Walker) Handle(evt canvas.Event) {
@@ -32,68 +38,68 @@ func (w *Walker) Handle(evt canvas.Event) {
 	if !ok {
 		return
 	}
-	w.px = float64(e.X)
-	w.py = float64(e.Y)
+	w.pLoc[0] = float64(e.X)
+	w.pLoc[1] = float64(e.Y)
 }
 
 func (w *Walker) attractionMove() {
-	if w.px == w.x && w.py == w.y {
+	if w.pLoc[0] == w.loc[0] && w.pLoc[1] == w.loc[1] {
 		newX := rand.Intn(3) - 1
 		newY := rand.Intn(3) - 1
-		w.x += float64(newX)
-		w.y += float64(newY)
+		w.loc[0] += float64(newX)
+		w.loc[1] += float64(newY)
 	} else {
 		randX, randY := rand.Float32(), rand.Float32()
 		newX, newY := -1+randX*2, -1+randY*2
 		distX, distY := hmath.StdDeviation(0.5, 1, float64(newX)), hmath.StdDeviation(0.5, 1, float64(newY))
-		if w.x < w.px {
+		if w.loc[0] < w.pLoc[0] {
 			if randX < 0.2 {
-				w.x -= distX
+				w.loc[0] -= distX
 			} else if randX > 0.5 {
-				w.x += distX
+				w.loc[0] += distX
 			}
 		} else {
 			if randX < 0.2 {
-				w.x += distX
+				w.loc[0] += distX
 			} else if randX > 0.5 {
-				w.x -= distX
+				w.loc[0] -= distX
 			}
 		}
 
-		if w.y < w.py {
+		if w.loc[1] < w.pLoc[1] {
 			if randY < 0.2 {
-				w.y -= distY
+				w.loc[1] -= distY
 			} else if randY > 0.5 {
-				w.y += distY
+				w.loc[1] += distY
 			}
 		} else {
 			if randY < 0.2 {
-				w.y += distY
+				w.loc[1] += distY
 			} else if randY > 0.5 {
-				w.y -= distY
+				w.loc[1] -= distY
 			}
 		}
 	}
 }
 
 func (w *Walker) noiseMove() {
-	newX, errX := hmath.Map(w.noise.Run(w.xoff, 0, 0), 0, 1, -2, 2)
+	newX, errX := hmath.Map(w.noise.Run(w.offset[0], 0, 0), 0, 1, -2, 2)
 	if errX != nil {
 		fmt.Println(errX)
 	}
-	newY, errY := hmath.Map(w.noise.Run(w.yoff, 0, 0), 0, 1, -2, 2)
+	newY, errY := hmath.Map(w.noise.Run(w.offset[1], 0, 0), 0, 1, -2, 2)
 	if errY != nil {
 		fmt.Println(errY)
 	}
-	w.x += float64(newX)
-	w.y += float64(newY)
-	w.xoff += 0.01
-	w.yoff += 0.01
+	w.loc[0] += float64(newX)
+	w.loc[1] += float64(newY)
+	w.offset[0] += 0.01
+	w.offset[1] += 0.01
 }
 
 func (w *Walker) move() {
 	newX := rand.Intn(3) - 1
 	newY := rand.Intn(3) - 1
-	w.x += float64(newX)
-	w.y += float64(newY)
+	w.loc[0] += float64(newX)
+	w.loc[1] += float64(newY)
 }

@@ -7,9 +7,20 @@ import (
 	"log"
 	"time"
 
+	"github.com/arthurlee945/hanji-physics/engine"
 	"github.com/arthurlee945/hanji-physics/engine/noiseview"
+	"github.com/arthurlee945/hanji-physics/engine/vectorview"
+	"github.com/arthurlee945/hanji-physics/engine/walker"
 	"github.com/fzipp/canvas"
 )
+
+const (
+	WALKER     = "WALKER"
+	NOISEVIEW  = "NOISEVIEW"
+	VECTORVIEW = "VECTORVIEW"
+)
+
+type PhysicsType string
 
 func main() {
 	http := flag.String("http", ":8080", "HTTP service address (e.g.. '127.0.0.1:8080' or ':8080')")
@@ -33,8 +44,7 @@ func main() {
 func runCanvas(ctx *canvas.Context) {
 	ctx.SetFillStyle(color.RGBA{0x08, 0x08, 0x08, 0xff})
 
-	// walker := walker.NewWalker(ctx.CanvasWidth(), ctx.CanvasHeight())
-	noiseview := noiseview.NewNoiseView(ctx.CanvasWidth(), ctx.CanvasHeight())
+	engine := physicsToRun(VECTORVIEW, ctx)
 
 	for {
 		select {
@@ -42,10 +52,9 @@ func runCanvas(ctx *canvas.Context) {
 			if _, ok := event.(canvas.CloseEvent); ok {
 				return
 			}
-			// walker.Handle(event)
+			engine.Handle(event)
 		default:
-			// walker.Draw(ctx)
-			noiseview.Draw(ctx)
+			engine.Draw(ctx)
 			ctx.Flush()
 			time.Sleep(5 * time.Millisecond)
 		}
@@ -57,4 +66,17 @@ func httpLink(addr string) string {
 		addr = "localhost" + addr
 	}
 	return "http://" + addr
+}
+
+func physicsToRun(typeName PhysicsType, ctx *canvas.Context) engine.EnginePart {
+	switch typeName {
+	case WALKER:
+		return walker.NewWalker(ctx.CanvasWidth(), ctx.CanvasHeight())
+	case NOISEVIEW:
+		return noiseview.NewNoiseView(ctx.CanvasWidth(), ctx.CanvasHeight())
+	case VECTORVIEW:
+		return vectorview.NewVectorView(ctx.CanvasWidth(), ctx.CanvasHeight())
+	default:
+		return walker.NewWalker(ctx.CanvasWidth(), ctx.CanvasHeight())
+	}
 }

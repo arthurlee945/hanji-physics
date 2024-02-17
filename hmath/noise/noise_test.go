@@ -3,11 +3,11 @@ package noise
 import (
 	"testing"
 
-	"github.com/arthurlee945/hanji-physics/hmath/vector"
+	"github.com/arthurlee945/hanji-physics/hmath/vec"
 )
 
 func TestNoise(t *testing.T) {
-	inputs := []vector.Vec3{
+	inputs := []vec.Vec3{
 		{2, 3, 4},
 		{6.5, 2, 9.3},
 	}

@@ -3,6 +3,7 @@ package noise
 import (
 	"math"
 	"math/rand"
+	"sync"
 
 	"github.com/arthurlee945/hanji-physics/hmath"
 )
@@ -25,6 +26,7 @@ type Noise struct {
 	permut     []float64
 	octaves    int
 	ampFO      float64
+	mu         sync.RWMutex
 }
 
 func NewNoise(opts ...NoiseFn) *Noise {
@@ -84,8 +86,8 @@ func (n *Noise) Run(x, y, z float64) float64 {
 
 		r += n1 * ampl
 		ampl *= n.ampFO
-		xi, yi, zi = xi<<1, yi<<1, zi<<1
-		xoff, yoff, zoff = xoff*2, yoff*2, zoff*2
+		xi, yi, zi = xi<<1, yi<<1, zi<<1          // int * 2
+		xoff, yoff, zoff = xoff*2, yoff*2, zoff*2 // float * 2
 
 		if xoff >= 1 {
 			xi++
