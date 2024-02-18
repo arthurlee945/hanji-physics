@@ -7,10 +7,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/arthurlee945/hanji-physics/engine"
-	"github.com/arthurlee945/hanji-physics/engine/noiseview"
-	"github.com/arthurlee945/hanji-physics/engine/vectorview"
-	"github.com/arthurlee945/hanji-physics/engine/walker"
+	"github.com/arthurlee945/hanji-physics/hanji"
+	"github.com/arthurlee945/hanji-physics/hanji/noiseview"
+	"github.com/arthurlee945/hanji-physics/hanji/vectorview"
+	"github.com/arthurlee945/hanji-physics/hanji/walker"
 	"github.com/fzipp/canvas"
 )
 
@@ -68,7 +68,7 @@ func httpLink(addr string) string {
 	return "http://" + addr
 }
 
-func physicsToRun(typeName PhysicsType, ctx *canvas.Context) engine.EnginePart {
+func physicsToRun(typeName PhysicsType, ctx *canvas.Context) hanji.EnginePart {
 	switch typeName {
 	case WALKER:
 		return walker.NewWalker(ctx.CanvasWidth(), ctx.CanvasHeight())

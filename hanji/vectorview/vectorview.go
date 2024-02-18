@@ -22,9 +22,7 @@ func NewVectorView(canvasWidth, canvasHeight int) *VectorView {
 }
 
 func (vv *VectorView) Draw(ctx *canvas.Context) {
-	vv.loc[0] += vv.speed[0]
-	vv.loc[1] += vv.speed[1]
-
+	vv.loc.Add(*vv.speed)
 	if vv.loc[0] > vv.size[0] && vv.speed[0] > 0 || vv.loc[0] < 0 && vv.speed[0] < 0 {
 		vv.speed[0] *= -1
 	}
