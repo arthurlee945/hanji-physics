@@ -1,6 +1,8 @@
 package vectorview
 
 import (
+	"math"
+
 	"github.com/arthurlee945/hanji-physics/hmath/vec"
 	"github.com/fzipp/canvas"
 )
@@ -28,7 +30,8 @@ func (vv *VectorView) Draw(ctx *canvas.Context) {
 	if vv.loc[1] > vv.size[1] && vv.speed[1] > 0 || vv.loc[1] < 0 && vv.speed[1] < 0 {
 		vv.speed[1] *= -1
 	}
-	ctx.Rect(vv.loc[0], vv.loc[0], 16, 16)
-	ctx.Stroke()
+	// ctx.MoveTo(vv.loc[0], vv.loc[1])
+	ctx.Arc(vv.loc[0], vv.loc[1], 10, 0, math.Pi*2, false)
+	ctx.Fill()
 }
 func (vv *VectorView) Handle(evt canvas.Event) {}
