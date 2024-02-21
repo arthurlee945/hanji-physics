@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"sync"
 
-	"github.com/arthurlee945/hanji-physics/hmath"
+	hrand "github.com/arthurlee945/hanji-physics/hmath/rand"
 )
 
 const (
@@ -121,7 +121,7 @@ func WithDetail(oct int, ampFO float64) NoiseFn {
 
 func WithSeededPermutation(seed int, size int) NoiseFn {
 	return func(n *Noise) {
-		lcg := hmath.NewLCG(seed)
+		lcg := hrand.NewLCG(seed)
 		permutations := make([]float64, size+1)
 		for i := range permutations {
 			permutations[i] = lcg.Rand()
