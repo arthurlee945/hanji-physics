@@ -1,43 +1,45 @@
 package vec
 
-import "math"
+import (
+	"math/rand"
+)
 
-func dot[VecT Vec2 | Vec3](ov VecT, pv VecT) float64 {
-	var dotVal float64
-	for i := range len(ov) {
-		dotVal += ov[i] * pv[i]
-	}
-	return dotVal
+func RandomVec2() *Vec2 {
+	return &Vec2{rand.Float64(), rand.Float64()}
 }
 
-func add[VecT *Vec2 | *Vec3](ov VecT, pv VecT) {
-	for i := range len(ov) {
-		ov[i] += pv[i]
-	}
+func RandomVec3() *Vec3 {
+	return &Vec3{rand.Float64(), rand.Float64(), rand.Float64()}
 }
 
-func sub[VecT *Vec2 | *Vec3](ov VecT, pv VecT) {
-	for i := range len(ov) {
-		ov[i] -= pv[i]
-	}
+func AddVec2(v1, v2 Vec2) *Vec2 {
+	return &Vec2{v1[0] + v2[0], v1[1] + v2[1]}
 }
 
-func mult[VecT *Vec2 | *Vec3](ov VecT, v float64) {
-	for i := range len(ov) {
-		ov[i] *= v
-	}
+func AddVec3(v1, v2 Vec3) *Vec3 {
+	return &Vec3{v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]}
 }
 
-func div[VecT *Vec2 | *Vec3](ov VecT, v float64) {
-	for i := range len(ov) {
-		ov[i] /= v
-	}
+func SubVec2(v1, v2 Vec2) *Vec2 {
+	return &Vec2{v1[0] - v2[0], v1[1] - v2[1]}
 }
 
-func mag[VecT *Vec2 | *Vec3](ov VecT) float64 {
-	var magSq float64
-	for i := range len(ov) {
-		magSq += ov[i] * ov[i]
-	}
-	return math.Sqrt(magSq)
+func SubVec3(v1, v2 Vec3) *Vec3 {
+	return &Vec3{v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]}
+}
+
+func DivVec2(v1, v2 Vec2) *Vec2 {
+	return &Vec2{v1[0] / v2[0], v1[1] / v2[1]}
+}
+
+func DivVec3(v1, v2 Vec3) *Vec3 {
+	return &Vec3{v1[0] / v2[0], v1[1] / v2[1], v1[2] / v2[2]}
+}
+
+func MultVec2(v1, v2 Vec2) *Vec2 {
+	return &Vec2{v1[0] * v2[0], v1[1] * v2[1]}
+}
+
+func MultVec3(v1, v2 Vec3) *Vec3 {
+	return &Vec3{v1[0] * v2[0], v1[1] * v2[1], v1[2] * v2[2]}
 }

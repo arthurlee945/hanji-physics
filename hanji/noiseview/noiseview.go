@@ -19,7 +19,7 @@ type NoiseView struct {
 
 func NewNoiseView(canvasWidth, canvasHeight int) *NoiseView {
 	noiseview := &NoiseView{
-		size:   &vec.Vec2{0, 0},
+		size:   &vec.Vec2{float64(canvasWidth), float64(canvasHeight)},
 		offset: &vec.Vec2{0, 0},
 		noise:  noise.NewNoise(noise.WithSeededPermutation(8, noise.PERMUTATION_SIZE)),
 	}

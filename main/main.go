@@ -44,7 +44,7 @@ func main() {
 func runCanvas(ctx *canvas.Context) {
 	ctx.SetFillStyle(color.RGBA{0x08, 0x08, 0x08, 0xff})
 
-	engine := physicsToRun(VECTORVIEW, ctx)
+	engine := physicsToRun(NOISEVIEW, ctx)
 
 	for {
 		select {
