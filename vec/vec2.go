@@ -4,6 +4,10 @@ import "math"
 
 type Vec2 [2]float64
 
+func NewVec2(x, y float64) *Vec2 {
+	return &Vec2{x, y}
+}
+
 func (v2 *Vec2) isVector() {}
 
 func (v2 *Vec2) Dot(pv Vec2) float64 {
@@ -34,7 +38,11 @@ func (v2 *Vec2) Mag() float64 {
 	return math.Sqrt(v2[0]*v2[0] + v2[1]*v2[1])
 }
 
-func (v2 *Vec2) Normal() Vec2 {
+func (v2 *Vec2) Normal() *Vec2 {
 	mag := v2.Mag()
-	return Vec2{v2[0] / mag, v2[1] / mag}
+	return &Vec2{v2[0] / mag, v2[1] / mag}
+}
+
+func (v2 *Vec2) Clone() *Vec2 {
+	return &Vec2{v2[0], v2[1]}
 }
