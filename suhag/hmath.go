@@ -1,4 +1,4 @@
-package hmath
+package suhag
 
 import (
 	"errors"

@@ -5,9 +5,9 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/arthurlee945/hanji-physics/hmath"
-	"github.com/arthurlee945/hanji-physics/hmath/noise"
-	"github.com/arthurlee945/hanji-physics/hmath/vec"
+	"github.com/arthurlee945/hanji-physics/suhag"
+	"github.com/arthurlee945/hanji-physics/suhag/noise"
+	"github.com/arthurlee945/hanji-physics/suhag/vec"
 	"github.com/fzipp/canvas"
 )
 
@@ -35,7 +35,7 @@ func (nv *NoiseView) draw1D(ctx *canvas.Context) {
 	ctx.ClearRect(0, 0, float64(nv.size[0]), float64(nv.size[1]))
 	ctx.BeginPath()
 	for x := range int(nv.size[0]) {
-		y, err := hmath.Map(nv.noise.Run(xoff, 0, 0), 0, 1, 0, float64(nv.size[1]))
+		y, err := suhag.Map(nv.noise.Run(xoff, 0, 0), 0, 1, 0, float64(nv.size[1]))
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -53,7 +53,7 @@ func (nv *NoiseView) draw2D(ctx *canvas.Context) {
 	for x := range int(nv.size[0]) {
 		yoff := 0.0
 		for y := range int(nv.size[1]) {
-			brightness, err := hmath.Map(nv.noise.Run(xoff, yoff, nv.offset[1]), 0, 1, 0, 255)
+			brightness, err := suhag.Map(nv.noise.Run(xoff, yoff, nv.offset[1]), 0, 1, 0, 255)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
@@ -78,7 +78,7 @@ func (nv *NoiseView) Handle(evt canvas.Event) {}
 // 		for y := range nv.y {
 // 			wg.Add(1)
 // 			go func() {
-// 				brightness, err := hmath.Map(nv.noise.Run(xoff, yoff, 0), 0, 1, 0, 255)
+// 				brightness, err := suhag.Map(nv.noise.Run(xoff, yoff, 0), 0, 1, 0, 255)
 // 				fmt.Println(xoff, yoff)
 // 				if err != nil {
 // 					fmt.Println(err.Error())

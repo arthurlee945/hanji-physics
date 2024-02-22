@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/arthurlee945/hanji-physics/hmath"
-	"github.com/arthurlee945/hanji-physics/hmath/noise"
-	"github.com/arthurlee945/hanji-physics/hmath/vec"
+	"github.com/arthurlee945/hanji-physics/suhag"
+	"github.com/arthurlee945/hanji-physics/suhag/noise"
+	"github.com/arthurlee945/hanji-physics/suhag/vec"
 	"github.com/fzipp/canvas"
 )
 
@@ -51,7 +51,7 @@ func (w *Walker) attractionMove() {
 	} else {
 		randX, randY := rand.Float32(), rand.Float32()
 		newX, newY := -1+randX*2, -1+randY*2
-		distX, distY := hmath.StdDeviation(0.5, 1, float64(newX)), hmath.StdDeviation(0.5, 1, float64(newY))
+		distX, distY := suhag.StdDeviation(0.5, 1, float64(newX)), suhag.StdDeviation(0.5, 1, float64(newY))
 		if w.loc[0] < w.pLoc[0] {
 			if randX < 0.2 {
 				w.loc[0] -= distX
@@ -83,11 +83,11 @@ func (w *Walker) attractionMove() {
 }
 
 func (w *Walker) noiseMove() {
-	newX, errX := hmath.Map(w.noise.Run(w.offset[0], 0, 0), 0, 1, -2, 2)
+	newX, errX := suhag.Map(w.noise.Run(w.offset[0], 0, 0), 0, 1, -2, 2)
 	if errX != nil {
 		fmt.Println(errX)
 	}
-	newY, errY := hmath.Map(w.noise.Run(w.offset[1], 0, 0), 0, 1, -2, 2)
+	newY, errY := suhag.Map(w.noise.Run(w.offset[1], 0, 0), 0, 1, -2, 2)
 	if errY != nil {
 		fmt.Println(errY)
 	}

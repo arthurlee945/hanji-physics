@@ -1,4 +1,4 @@
-module github.com/arthurlee945/hanji-physics
+module github.com/arthurlee945/suhag
 
 go 1.22
 

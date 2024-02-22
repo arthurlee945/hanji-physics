@@ -1,4 +1,4 @@
-package hmath
+package suhag
 
 func Lerp(t, a1, a2 float64) float64 {
 	return a1 + t*(a2-a1)

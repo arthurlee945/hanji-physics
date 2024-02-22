@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"sync"
 
-	hrand "github.com/arthurlee945/hanji-physics/hmath/rand"
+	hrand "github.com/arthurlee945/hanji-physics/suhag/rand"
 )
 
 const (

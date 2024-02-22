@@ -3,7 +3,7 @@ package vectorview
 import (
 	"math"
 
-	"github.com/arthurlee945/hanji-physics/hmath/vec"
+	"github.com/arthurlee945/hanji-physics/suhag/vec"
 	"github.com/fzipp/canvas"
 )
 

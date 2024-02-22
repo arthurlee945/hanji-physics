@@ -1,9 +1,9 @@
 <div align="center">
   <p>
-    <h1>Hanji Physics</h1>
+    <h1>SUHAG (수학)</h1>
   </p>
   <p>
-    Physics engine built with Go
+    math functions to build physics engine
   </p>
   <p>
     <em>Leave a Like! or check out my portfolio <a href="https://arthurlee.bio">arthurlee.bio</a></em>

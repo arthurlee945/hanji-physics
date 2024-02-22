@@ -1,4 +1,4 @@
-package hanji
+package example
 
 import (
 	"github.com/fzipp/canvas"

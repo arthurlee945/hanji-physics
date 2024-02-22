@@ -3,7 +3,7 @@ package noise
 import (
 	"testing"
 
-	"github.com/arthurlee945/hanji-physics/hmath/vec"
+	"github.com/arthurlee945/hanji-physics/suhag/vec"
 )
 
 func TestNoise(t *testing.T) {
