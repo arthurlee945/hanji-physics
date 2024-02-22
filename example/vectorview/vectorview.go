@@ -57,7 +57,7 @@ func (vv *VectorView) Handle(evt canvas.Event) {
 	}
 	vv.pointer[0] = float64(e.X)
 	vv.pointer[1] = float64(e.Y)
-	normalized := vec.SubVec2(vec.Vec2{vv.pointer[0], vv.pointer[1]}, *vv.loc).Normal()
+	normalized := vec.SubV2(vec.Vec2{vv.pointer[0], vv.pointer[1]}, *vv.loc).Normal()
 	normalized.Mult(0.5)
 	vv.accelaration = normalized
 }

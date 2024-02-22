@@ -8,9 +8,8 @@ func TestLCG(t *testing.T) {
 		123,
 	}
 
-	lcg, lcg2 := NewLCG(seeds[0]), NewLCG(seeds[1])
-	randVal1, randVal2 := lcg.Rand(), lcg.Rand()
-	rand2Val1, rand2Val2 := lcg2.Rand(), lcg2.Rand()
+	randVal1, randVal2 := NewLCG(seeds[0]).Rand(), NewLCG(seeds[0]).Rand()
+	rand2Val1, rand2Val2 := NewLCG(seeds[1]).Rand(), NewLCG(seeds[1]).Rand()
 
 	if randVal1 != randVal2 {
 		t.Errorf("expected two same seeded value to be same but got: %v | %v", randVal1, randVal2)
