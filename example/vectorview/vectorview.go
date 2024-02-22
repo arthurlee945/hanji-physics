@@ -3,7 +3,7 @@ package vectorview
 import (
 	"math"
 
-	"github.com/arthurlee945/suhag/suhag/vec"
+	"github.com/arthurlee945/suhag/vec"
 	"github.com/fzipp/canvas"
 )
 
