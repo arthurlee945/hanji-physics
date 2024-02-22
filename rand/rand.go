@@ -1,6 +1,6 @@
 package rand
 
-import "github.com/arthurlee945/hanji-physics/suhag"
+import "github.com/arthurlee945/suhag"
 
 func MonteCarloRand(min, max float64) float64 {
 	for {

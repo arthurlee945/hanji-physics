@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/arthurlee945/hanji-physics/suhag"
-	"github.com/arthurlee945/hanji-physics/suhag/noise"
-	"github.com/arthurlee945/hanji-physics/suhag/vec"
+	"github.com/arthurlee945/suhag"
+	"github.com/arthurlee945/suhag/noise"
+	"github.com/arthurlee945/suhag/vec"
 	"github.com/fzipp/canvas"
 )
 

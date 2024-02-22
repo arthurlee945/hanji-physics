@@ -7,10 +7,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/arthurlee945/hanji-physics/example"
-	"github.com/arthurlee945/hanji-physics/example/noiseview"
-	"github.com/arthurlee945/hanji-physics/example/vectorview"
-	"github.com/arthurlee945/hanji-physics/example/walker"
+	"github.com/arthurlee945/suhag/example"
+	"github.com/arthurlee945/suhag/example/noiseview"
+	"github.com/arthurlee945/suhag/example/vectorview"
+	"github.com/arthurlee945/suhag/example/walker"
 	"github.com/fzipp/canvas"
 )
 
