@@ -21,9 +21,9 @@
 **Just Run**
 
 ```
-air --build.cmd "go build -o tmp main/main.go"
+air --build.cmd "go build -o tmp example/<EXAMPLE NAME>/<EXAMPLE NAME>.go"
 
 or
 
-go build main/main.go && ./main.exe
+go build example/<EXAMPLE NAME>/<EXAMPLE NAME>.go && ./<EXAMPLE NAME>.exe
 ```
