@@ -8,22 +8,20 @@ func NewVec3(x, y, z float64) *Vec3 {
 	return &Vec3{x, y, z}
 }
 
-func (v *Vec3) isVector() {}
-
-func (v3 *Vec3) Dot(pv Vec3) float64 {
-	return v3[0]*pv[0] + v3[1]*pv[1] + v3[2]*pv[2]
+func (v3 *Vec3) Dot(nv Vec3) float64 {
+	return v3[0]*nv[0] + v3[1]*nv[1] + v3[2]*nv[2]
 }
 
-func (v3 *Vec3) Add(pv Vec3) {
-	v3[0] += pv[0]
-	v3[1] += pv[1]
-	v3[2] += pv[2]
+func (v3 *Vec3) Add(nv Vec3) {
+	v3[0] += nv[0]
+	v3[1] += nv[1]
+	v3[2] += nv[2]
 }
 
-func (v3 *Vec3) Sub(pv Vec3) {
-	v3[0] -= pv[0]
-	v3[1] -= pv[1]
-	v3[2] -= pv[2]
+func (v3 *Vec3) Sub(nv Vec3) {
+	v3[0] -= nv[0]
+	v3[1] -= nv[1]
+	v3[2] -= nv[2]
 }
 
 func (v3 *Vec3) Mult(v float64) {
@@ -36,6 +34,13 @@ func (v3 *Vec3) Div(v float64) {
 	v3[0] /= v
 	v3[1] /= v
 	v3[2] /= v
+}
+
+func (v3 *Vec3) Normalize() {
+	mag := v3.Mag()
+	v3[0] /= mag
+	v3[1] /= mag
+	v3[2] /= mag
 }
 
 func (v3 *Vec3) Mag() float64 {

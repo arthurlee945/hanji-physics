@@ -8,20 +8,18 @@ func NewVec2(x, y float64) *Vec2 {
 	return &Vec2{x, y}
 }
 
-func (v2 *Vec2) isVector() {}
-
-func (v2 *Vec2) Dot(pv Vec2) float64 {
-	return v2[0]*pv[0] + v2[1]*pv[1]
+func (v2 *Vec2) Dot(nv Vec2) float64 {
+	return v2[0]*nv[0] + v2[1]*nv[1]
 }
 
-func (v2 *Vec2) Add(pv Vec2) {
-	v2[0] += pv[0]
-	v2[1] += pv[1]
+func (v2 *Vec2) Add(nv Vec2) {
+	v2[0] += nv[0]
+	v2[1] += nv[1]
 }
 
-func (v2 *Vec2) Sub(pv Vec2) {
-	v2[0] += pv[0]
-	v2[1] += pv[1]
+func (v2 *Vec2) Sub(nv Vec2) {
+	v2[0] += nv[0]
+	v2[1] += nv[1]
 }
 
 func (v2 *Vec2) Mult(v float64) {
@@ -32,6 +30,12 @@ func (v2 *Vec2) Mult(v float64) {
 func (v2 *Vec2) Div(v float64) {
 	v2[0] /= v
 	v2[1] /= v
+}
+
+func (v2 *Vec2) Normalize() {
+	mag := v2.Mag()
+	v2[0] /= mag
+	v2[1] /= mag
 }
 
 func (v2 *Vec2) Mag() float64 {
