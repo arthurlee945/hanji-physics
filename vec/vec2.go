@@ -28,12 +28,18 @@ func (v2 *Vec2) Mult(v float64) {
 }
 
 func (v2 *Vec2) Div(v float64) {
+	if v == 0 {
+		return
+	}
 	v2[0] /= v
 	v2[1] /= v
 }
 
 func (v2 *Vec2) Normalize() {
 	mag := v2.Mag()
+	if mag == 0 {
+		return
+	}
 	v2[0] /= mag
 	v2[1] /= mag
 }
@@ -44,6 +50,9 @@ func (v2 *Vec2) Mag() float64 {
 
 func (v2 *Vec2) Normal() *Vec2 {
 	mag := v2.Mag()
+	if mag == 0 {
+		return &Vec2{}
+	}
 	return &Vec2{v2[0] / mag, v2[1] / mag}
 }
 

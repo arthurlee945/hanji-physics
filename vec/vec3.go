@@ -31,6 +31,9 @@ func (v3 *Vec3) Mult(v float64) {
 }
 
 func (v3 *Vec3) Div(v float64) {
+	if v == 0 {
+		return
+	}
 	v3[0] /= v
 	v3[1] /= v
 	v3[2] /= v
@@ -38,6 +41,9 @@ func (v3 *Vec3) Div(v float64) {
 
 func (v3 *Vec3) Normalize() {
 	mag := v3.Mag()
+	if mag == 0 {
+		return
+	}
 	v3[0] /= mag
 	v3[1] /= mag
 	v3[2] /= mag
@@ -49,6 +55,9 @@ func (v3 *Vec3) Mag() float64 {
 
 func (v3 *Vec3) Normal() *Vec3 {
 	mag := v3.Mag()
+	if mag == 0 {
+		return &Vec3{}
+	}
 	return &Vec3{v3[0] / mag, v3[1] / mag, v3[2] / mag}
 }
 

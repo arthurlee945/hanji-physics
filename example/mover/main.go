@@ -9,6 +9,7 @@ import (
 	"math/rand/v2"
 	"time"
 
+	"github.com/arthurlee945/suhag/force"
 	"github.com/arthurlee945/suhag/vec"
 	"github.com/fzipp/canvas"
 )
@@ -79,7 +80,10 @@ func (mv *MoverView) Draw(ctx *canvas.Context) {
 	wind := vec.NewVec2(0.01, 0)
 
 	for _, m := range mv {
+		c := 0.01
+		friction := force.Friction(m.velocity, c, 1)
 		gravity := vec.NewVec2(0, 0.1*m.mass)
+		m.ApplyForce(friction)
 		m.ApplyForce(wind)
 		m.ApplyForce(gravity)
 
