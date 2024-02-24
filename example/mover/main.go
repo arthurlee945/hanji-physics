@@ -107,7 +107,7 @@ func NewMover(x, y, mass float64) *Mover {
 }
 
 func (m *Mover) ApplyForce(force *vec.Vec2) {
-	m.acceleration.Add(*vec.DivV2(force, m.mass))
+	m.acceleration.Add(*vec.Div(*force, m.mass))
 }
 
 func (m *Mover) Move() {
