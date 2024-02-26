@@ -30,7 +30,7 @@ func Friction[Vec vec.Vec2 | vec.Vec3](vel vec.Vector[Vec], c, normal float64) *
 }
 
 /*
-F = -1/2 * p(rho) * v*2(velocity magnitude) * A(cross sectional area) * Cd (Coefficient of Drag) * v^(velocity unit vector)
+F = -1/2 * p(rho - density of liquid) * v*2(velocity magnitude) * A(cross sectional area) * Cd (Coefficient of Drag) * v^(velocity unit vector)
 
 c (Cd) - coefficient of drag | Coefficient of Drag)
 
