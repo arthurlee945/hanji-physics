@@ -32,16 +32,19 @@ func Friction[Vec vec.Vec2 | vec.Vec3](vel vec.Vector[Vec], c, normal float64) *
 /*
 F = -1/2 * p(rho - density of liquid) * v*2(velocity magnitude) * A(cross sectional area) * Cd (Coefficient of Drag) * v^(velocity unit vector)
 
-c (Cd) - coefficient of drag | Coefficient of Drag)
+density (p - rho) | density of liquid
 
-c * speed * speed = drag magnitude
-TODO: cross sectional area need to be implemented
+a (cross sectional area) | area making contact with liquid
+
+coefficient (Cd) | Coefficient of Drag
+
+density * A * c * speed * speed = drag magnitude
 */
-func Drag[Vec vec.Vec2 | vec.Vec3](vel vec.Vector[Vec], c float64) *Vec {
+func Drag[Vec vec.Vec2 | vec.Vec3](vel vec.Vector[Vec], density, A, coefficient float64) *Vec {
 	speed := vel.Mag()
 	drag := any(vel.Clone()).(vec.Vector[Vec])
-	drag.Mult(-1)
+	drag.Mult(-0.5)
 	drag.Normalize()
-	drag.Mult(c * speed * speed)
+	drag.Mult(density * A * coefficient * speed * speed)
 	return any(drag).(*Vec)
 }

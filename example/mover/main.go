@@ -90,7 +90,7 @@ func (mv *MoverView) Draw(ctx *canvas.Context) {
 		// friction := force.Friction(m.velocity, c, 1)
 		// m.ApplyForce(friction)
 		if m.isIniside(*mv.liquid) {
-			drag := force.Drag(m.velocity, mv.liquid.coefficient)
+			drag := force.Drag(m.velocity, 1, 1, mv.liquid.coefficient)
 			m.ApplyForce(drag)
 		}
 
