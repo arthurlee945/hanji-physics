@@ -104,7 +104,6 @@ func (mv *MoverView) Draw(ctx *canvas.Context) {
 		m.CheckEdges(float64(ctx.CanvasWidth()), float64(ctx.CanvasHeight()))
 		m.Move()
 		m.Display(ctx)
-
 	}
 }
 func (mv *MoverView) Handle(evt canvas.Event) {
