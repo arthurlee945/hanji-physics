@@ -87,7 +87,7 @@ func (mv *MoverView) Draw(ctx *canvas.Context) {
 
 	for _, m := range mv.movers {
 		gravitationalPull := force.Attraction(mv.attractor.G, mv.attractor.mass, m.Mass, *m.Loc, *mv.attractor.loc)
-		gravMag := suhag.Clamp(gravitationalPull.Mag(), 0.5, 4)
+		gravMag := suhag.Clamp(gravitationalPull.Mag(), 0.4, 3)
 		gravitationalPull.Normalize()
 		gravitationalPull.Mult(gravMag)
 		m.ApplyForce(gravitationalPull)
