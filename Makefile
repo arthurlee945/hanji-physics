@@ -1,7 +1,7 @@
 test:
 	air --build.cmd "go build -o tmp example/main.go"
-mover:
-	air --build.cmd "go build -o tmp example/mover/main.go"
+gravity:
+	air --build.cmd "go build -o tmp example/gravity/main.go"
 noise:
 	air --build.cmd "go build -o tmp example/noise/main.go"
 walker:

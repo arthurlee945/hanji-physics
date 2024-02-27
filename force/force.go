@@ -48,3 +48,42 @@ func Drag[Vec vec.Vec2 | vec.Vec3](vel vec.Vector[Vec], density, A, coefficient 
 	drag.Mult(density * A * coefficient * speed * speed)
 	return any(drag).(*Vec)
 }
+
+/*
+F = ((G * mass1 * mass2) / r ^ 2) * r^
+
+G (universal gravitational constant) | earth = 6.67426 * 10^-11
+
+m1, m2 (mass of two obj)
+
+r | distance between the two obj
+
+r^ | unit vector pointing from obj 1 to obj 2
+1,2 -> 4 , 24
+*/
+
+func Attraction[Vec vec.Vec2 | vec.Vec3](G, m1, m2 float64, from, to Vec) *Vec {
+	attraction := any(vec.Sub(to, from)).(vec.Vector[Vec])
+	dist := attraction.Mag()
+	if dist == 0 {
+		attraction.Mult(0)
+		return any(attraction).(*Vec)
+	}
+	attractionMag := (G * m1 * m2) / (dist * dist)
+	attraction.Normalize()
+	attraction.Mult(attractionMag)
+	return any(attraction).(*Vec)
+}
+
+func Repulsion[Vec vec.Vec2 | vec.Vec3](G, m1, m2 float64, from, to Vec) *Vec {
+	repulsion := any(vec.Sub(to, from)).(vec.Vector[Vec])
+	dist := repulsion.Mag()
+	if dist == 0 {
+		repulsion.Mult(0)
+		return any(repulsion).(*Vec)
+	}
+	repulsionMag := -1 * (G * m1 * m2) / (dist * dist)
+	repulsion.Normalize()
+	repulsion.Mult(repulsionMag)
+	return any(repulsion).(*Vec)
+}
