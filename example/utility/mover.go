@@ -12,6 +12,7 @@ type Mover struct {
 	Velocity     *vec.Vec2
 	Acceleration *vec.Vec2
 	Mass         float64
+	Angle        *Angle
 }
 
 func NewMover(x, y, mass float64) *Mover {
@@ -20,6 +21,7 @@ func NewMover(x, y, mass float64) *Mover {
 		Velocity:     &vec.Vec2{0, 0},
 		Acceleration: &vec.Vec2{0, 0},
 		Mass:         mass,
+		Angle:        &Angle{0, 0, 0.001},
 	}
 }
 
@@ -27,7 +29,7 @@ func (m *Mover) ApplyForce(force *vec.Vec2) {
 	m.Acceleration.Add(*vec.Div(*force, m.Mass))
 }
 
-func (m *Mover) Move() {
+func (m *Mover) Update() {
 	m.Velocity.Add(*m.Acceleration)
 	m.Loc.Add(*m.Velocity)
 	m.Acceleration.Mult(0)

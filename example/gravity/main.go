@@ -102,7 +102,7 @@ func (mv *MoverView) Draw(ctx *canvas.Context) {
 		// 	m.ApplyForce(repulsion)
 		// }
 		m.CheckEdges(float64(ctx.CanvasWidth()), float64(ctx.CanvasHeight()))
-		m.Move()
+		m.Update()
 		m.Display(ctx)
 	}
 }
