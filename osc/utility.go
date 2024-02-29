@@ -1,4 +1,4 @@
-package oscillation
+package osc
 
 import "math"
 
