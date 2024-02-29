@@ -1,6 +1,8 @@
 package force
 
 import (
+	"math"
+
 	"github.com/arthurlee945/suhag/vec"
 )
 
@@ -10,6 +12,10 @@ func Acceleration[Vec vec.Vec2 | vec.Vec3](force Vec, mass float64) *Vec {
 
 func Force[Vec vec.Vec2 | vec.Vec3](acceleration Vec, mass float64) *Vec {
 	return vec.Mult(acceleration, mass)
+}
+
+func Normal(gravity, radian float64) float64 {
+	return gravity * math.Sin(radian)
 }
 
 /*
