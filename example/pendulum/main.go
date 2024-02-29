@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/arthurlee945/suhag/example/utility"
+	"github.com/arthurlee945/suhag/osc"
 	"github.com/arthurlee945/suhag/vec"
 	"github.com/fzipp/canvas"
 )
@@ -17,7 +18,7 @@ func main() {
 func runCanvas(ctx *canvas.Context) {
 	width, height := float64(ctx.CanvasWidth()), float64(ctx.CanvasHeight())
 	ctx.SetFillStyle(color.RGBA{0x08, 0x08, 0x08, 0xff})
-	pendulum := &Pendulum{125, math.Pi / 4, 0, 0}
+	pendulum := &Pendulum{&osc.Polar2{Radius: 125, Theta: math.Pi / 4}, 0, 0}
 	origin := vec.NewVec2(width/2, height/3)
 	for {
 		pendulum.Update()
@@ -26,8 +27,8 @@ func runCanvas(ctx *canvas.Context) {
 		ctx.BeginPath()
 		ctx.Rect(0, 0, width, height)
 		ctx.Stroke()
-
-		loc := &vec.Vec2{pendulum.radius * math.Sin(pendulum.angle), pendulum.radius * math.Cos(pendulum.angle)}
+		cart := pendulum.polar.ToCartesian()
+		loc := vec.NewVec2(cart[1], cart[0])
 		ctx.BeginPath()
 		loc.Add(*origin)
 		ctx.MoveTo(origin[0], origin[1])
@@ -37,21 +38,19 @@ func runCanvas(ctx *canvas.Context) {
 		ctx.BeginPath()
 		ctx.Arc(loc[0], loc[1], 16, 0, math.Pi*2, false)
 		ctx.Fill()
-
 		ctx.Flush()
 		time.Sleep(5 * time.Millisecond)
 	}
 }
 
 type Pendulum struct {
-	radius float64
-	angle  float64
+	polar  *osc.Polar2
 	aVel   float64
 	aAccel float64
 }
 
 func (p *Pendulum) Update() {
-	p.aAccel = (-1 * 0.4 / p.radius) * math.Sin(p.angle)
+	p.aAccel = (-1 * 0.4 / p.polar.Radius) * math.Sin(p.polar.Theta)
 	p.aVel += p.aAccel
-	p.angle += p.aVel
+	p.polar.Theta += p.aVel
 }
