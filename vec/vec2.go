@@ -1,6 +1,8 @@
 package vec
 
-import "math"
+import (
+	"math"
+)
 
 type Vec2 [2]float64
 
