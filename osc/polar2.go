@@ -1,5 +1,7 @@
 package osc
 
+//Oscillation
+
 import (
 	"math"
 
