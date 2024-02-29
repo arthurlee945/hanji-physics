@@ -6,3 +6,5 @@ noise:
 	air --build.cmd "go build -o tmp example/noise/main.go"
 walker:
 	air --build.cmd "go build -o tmp example/walker/main.go"
+osc:
+	air --build.cmd "go build -o tmp example/oscillation/main.go"

@@ -1,10 +1,7 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"image/color"
-	"log"
 	"math"
 	"math/rand/v2"
 	"time"
@@ -17,22 +14,7 @@ import (
 )
 
 func main() {
-	http := flag.String("http", ":8080", "HTTP service address (e.g.. '127.0.0.1:8080' or ':8080')")
-	flag.Parse()
-
-	fmt.Println("Listening on " + httpLink(*http))
-	err := canvas.ListenAndServe(*http, runCanvas, &canvas.Options{
-		Title:          "Vector View",
-		Width:          800,
-		Height:         800,
-		PageBackground: color.RGBA{R: 0xFA, G: 0xF9, B: 0xF6, A: 0xFF},
-		EnabledEvents: []canvas.Event{
-			canvas.MouseMoveEvent{},
-		},
-	})
-	if err != nil {
-		log.Fatalf("Failed on starting canvas server: %v", err)
-	}
+	utility.StartCanvas(800, 800, "Vector View", runCanvas)
 }
 
 func runCanvas(ctx *canvas.Context) {
@@ -53,13 +35,6 @@ func runCanvas(ctx *canvas.Context) {
 			time.Sleep(5 * time.Millisecond)
 		}
 	}
-}
-
-func httpLink(addr string) string {
-	if addr[0] == ':' {
-		addr = "localhost" + addr
-	}
-	return "http://" + addr
 }
 
 type MoverView struct {

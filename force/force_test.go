@@ -18,7 +18,7 @@ func TestAcceleration(t *testing.T) {
 
 	for _, v2 := range v2Cases {
 		acc := Acceleration(v2, 10)
-		if acc[0] != v2[0]/10 || acc[1] != v2[0]/10 {
+		if acc[0] != v2[0]/10 || acc[1] != v2[1]/10 {
 			v2.Div(10)
 			t.Errorf("Expected acceleration to match vector / mass; expected=%v; got=%v", v2, acc)
 		}
@@ -26,8 +26,8 @@ func TestAcceleration(t *testing.T) {
 
 	for _, v3 := range v3Cases {
 		acc := Acceleration(v3, 8)
-		if acc[0] != v3[0]/8 || acc[1] != v3[0]/8 {
-			v3.Div(10)
+		if acc[0] != v3[0]/8 || acc[1] != v3[1]/8 {
+			v3.Div(8)
 			t.Errorf("Expected acceleration to match vector / mass; expected=%v; got=%v", v3, acc)
 		}
 	}
@@ -44,18 +44,18 @@ func TestForce(t *testing.T) {
 	}
 
 	for _, v2 := range v2Cases {
-		acc := Acceleration(v2, 10)
-		if acc[0] != v2[0]*10 || acc[1] != v2[0]*10 {
+		acc := Force(v2, 10)
+		if acc[0] != v2[0]*10 || acc[1] != v2[1]*10 {
 			v2.Div(10)
-			t.Errorf("Expected acceleration to match vector * mass; expected=%v; got=%v", v2, acc)
+			t.Errorf("Expected Force to match vector * mass; expected=%v; got=%v", v2, acc)
 		}
 	}
 
 	for _, v3 := range v3Cases {
-		acc := Acceleration(v3, 8)
-		if acc[0] != v3[0]*8 || acc[1] != v3[0]*8 {
+		acc := Force(v3, 8)
+		if acc[0] != v3[0]*8 || acc[1] != v3[1]*8 {
 			v3.Div(8)
-			t.Errorf("Expected acceleration to match vector * mass; expected=%v; got=%v", v3, acc)
+			t.Errorf("Expected Force to match vector * mass; expected=%v; got=%v", v3, acc)
 		}
 	}
 }
@@ -144,7 +144,7 @@ func TestAttraction(t *testing.T) {
 	attractionv2 := Attraction(G, m1, m2, *v2Cases[0], *v2Cases[1])
 	attrValv2 := vec.Sub(*v2Cases[0], *v2Cases[1])
 	distv2 := attrValv2.Mag()
-	attrMag := (G * m1 * m2) / (distv2 * distv2)
+	attrMag := -1 * (G * m1 * m2) / (distv2 * distv2)
 	attrValv2.Normalize()
 	attrValv2.Mult(attrMag)
 	if attractionv2[0] != attrValv2[0] || attractionv2[1] != attrValv2[1] {
@@ -154,11 +154,11 @@ func TestAttraction(t *testing.T) {
 	attractionv3 := Attraction(G, m1, m2, *v3Cases[0], *v3Cases[1])
 	attrValv3 := vec.Sub(*v3Cases[0], *v3Cases[1])
 	distv3 := attrValv3.Mag()
-	attrMagv3 := (G * m1 * m2) / (distv3 * distv3)
+	attrMagv3 := -1 * (G * m1 * m2) / (distv3 * distv3)
 	attrValv3.Normalize()
 	attrValv3.Mult(attrMagv3)
 	if attractionv3[0] != attrValv3[0] || attractionv3[1] != attrValv3[1] {
-		t.Errorf("F = ((G * mass1 * mass2) / r ^ 2) * r^. expected=%v, got=%v", attrValv3, attractionv2)
+		t.Errorf("F = ((G * mass1 * mass2) / r ^ 2) * r^. expected=%v, got=%v", attrValv3, attractionv3)
 	}
 }
 
@@ -177,7 +177,7 @@ func TestRepulsion(t *testing.T) {
 	repulsionv2 := Repulsion(G, m1, m2, *v2Cases[0], *v2Cases[1])
 	repulValv2 := vec.Sub(*v2Cases[0], *v2Cases[1])
 	distv2 := repulValv2.Mag()
-	repulMag := -1 * (G * m1 * m2) / (distv2 * distv2)
+	repulMag := (G * m1 * m2) / (distv2 * distv2)
 	repulValv2.Normalize()
 	repulValv2.Mult(repulMag)
 	if repulsionv2[0] != repulValv2[0] || repulsionv2[1] != repulValv2[1] {
@@ -187,10 +187,10 @@ func TestRepulsion(t *testing.T) {
 	repulsionv3 := Repulsion(G, m1, m2, *v3Cases[0], *v3Cases[1])
 	repulValv3 := vec.Sub(*v3Cases[0], *v3Cases[1])
 	distv3 := repulValv3.Mag()
-	repulMagv3 := -1 * (G * m1 * m2) / (distv3 * distv3)
+	repulMagv3 := (G * m1 * m2) / (distv3 * distv3)
 	repulValv3.Normalize()
 	repulValv3.Mult(repulMagv3)
 	if repulsionv3[0] != repulValv3[0] || repulsionv3[1] != repulValv3[1] {
-		t.Errorf("F = ((G * mass1 * mass2) / r ^ 2) * r^. expected=%v, got=%v", repulValv3, repulsionv2)
+		t.Errorf("F = ((G * mass1 * mass2) / r ^ 2) * r^. expected=%v, got=%v", repulValv3, repulsionv3)
 	}
 }
