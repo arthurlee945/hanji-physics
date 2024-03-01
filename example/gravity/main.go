@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"math"
 	"math/rand/v2"
+	"sync"
 	"time"
 
 	"github.com/arthurlee945/suhag"
@@ -38,6 +39,7 @@ func runCanvas(ctx *canvas.Context) {
 }
 
 type MoverView struct {
+	mu        sync.RWMutex
 	movers    [10]*utility.Mover
 	attractor *Attractor
 }
@@ -58,28 +60,33 @@ func (mv *MoverView) Draw(ctx *canvas.Context) {
 	ctx.BeginPath()
 	ctx.Rect(0, 0, width, height)
 	ctx.Stroke()
-	mv.attractor.Display(ctx)
-
+	mv.attractor.Display(ctx, &mv.mu)
+	wg := sync.WaitGroup{}
 	for _, m := range mv.movers {
-		gravitationalPull := force.Attraction(mv.attractor.G, mv.attractor.mass, m.Mass, *m.Loc, *mv.attractor.loc)
-		gravMag := suhag.Clamp(gravitationalPull.Mag(), 0.4, 3)
-		gravitationalPull.Normalize()
-		gravitationalPull.Mult(gravMag)
-		m.ApplyForce(gravitationalPull)
-		// for m2i, m2 := range mv.movers {
-		// 	if mi == m2i {
-		// 		continue
-		// 	}
-		// 	repulsion := force.Repulsion(mv.attractor.G, mv.attractor.mass, m.Mass, *m.Loc, *m2.Loc)
-		// 	repulsionMag := suhag.Clamp(repulsion.Mag(), 0.1, 2)
-		// 	repulsion.Normalize()
-		// 	repulsion.Mult(repulsionMag)
-		// 	m.ApplyForce(repulsion)
-		// }
-		m.CheckEdges(float64(ctx.CanvasWidth()), float64(ctx.CanvasHeight()))
-		m.Update()
-		m.Display(ctx)
+		wg.Add(1)
+		go func() {
+			gravitationalPull := force.Attraction(mv.attractor.G, mv.attractor.mass, m.Mass, *m.Loc, *mv.attractor.loc)
+			gravMag := suhag.Clamp(gravitationalPull.Mag(), 0.4, 3)
+			gravitationalPull.Normalize()
+			gravitationalPull.Mult(gravMag)
+			m.ApplyForce(gravitationalPull)
+			// for m2i, m2 := range mv.movers {
+			// 	if mi == m2i {
+			// 		continue
+			// 	}
+			// 	repulsion := force.Repulsion(mv.attractor.G, mv.attractor.mass, m.Mass, *m.Loc, *m2.Loc)
+			// 	repulsionMag := suhag.Clamp(repulsion.Mag(), 0.1, 2)
+			// 	repulsion.Normalize()
+			// 	repulsion.Mult(repulsionMag)
+			// 	m.ApplyForce(repulsion)
+			// }
+			m.CheckEdges(float64(ctx.CanvasWidth()), float64(ctx.CanvasHeight()))
+			m.Update()
+			m.Display(ctx, &mv.mu)
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 }
 func (mv *MoverView) Handle(evt canvas.Event) {
 	e, ok := evt.(canvas.MouseMoveEvent)
@@ -100,10 +107,12 @@ func NewAttractor(x, y, mass float64) *Attractor {
 	return &Attractor{mass, 2, vec.NewVec2(x, y)}
 }
 
-func (a *Attractor) Display(ctx *canvas.Context) {
+func (a *Attractor) Display(ctx *canvas.Context, mu *sync.RWMutex) {
+	mu.Lock()
 	ctx.BeginPath()
 	ctx.Arc(a.loc[0], a.loc[1], a.mass, 0, math.Pi*2, false)
 	ctx.SetFillStyle(color.RGBA{138, 43, 226, 150})
 	ctx.Fill()
 	ctx.SetFillStyle(color.RGBA{75, 0, 130, 255})
+	mu.Unlock()
 }

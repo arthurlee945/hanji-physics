@@ -2,6 +2,7 @@ package utility
 
 import (
 	"math"
+	"sync"
 
 	"github.com/arthurlee945/suhag/vec"
 	"github.com/fzipp/canvas"
@@ -35,10 +36,12 @@ func (m *Mover) Update() {
 	m.Acceleration.Mult(0)
 }
 
-func (m *Mover) Display(ctx *canvas.Context) {
+func (m *Mover) Display(ctx *canvas.Context, mu *sync.RWMutex) {
+	mu.Lock()
 	ctx.BeginPath()
 	ctx.Arc(m.Loc[0], m.Loc[1], m.Mass, 0, math.Pi*2, false)
 	ctx.Fill()
+	mu.Unlock()
 }
 
 func (m *Mover) CheckEdges(x, y float64) {
