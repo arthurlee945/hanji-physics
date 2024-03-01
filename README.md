@@ -22,7 +22,7 @@
 
 This is a package containing mathametic functions and struct useful for creating physics simulation.
 
-**Just Run Below for exaamples**
+**Run below for exaamples**
 
 ```
 make <EXAMPLE NAME>
