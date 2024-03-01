@@ -53,4 +53,5 @@ func (p *Pendulum) Update() {
 	p.aAccel = (-1 * 0.4 / p.polar.Radius) * math.Sin(p.polar.Theta)
 	p.aVel += p.aAccel
 	p.polar.Theta += p.aVel
+	p.aVel *= 0.995
 }
