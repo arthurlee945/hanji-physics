@@ -18,9 +18,17 @@
 
 ```
 
-**Just Run**
+## Overview
+
+This is a package containing mathametic functions and struct useful for creating physics simulation.
+
+**Just Run Below for exaamples**
 
 ```
+make <EXAMPLE NAME>
+
+or
+
 air --build.cmd "go build -o tmp example/<EXAMPLE NAME>/main.go"
 
 or
