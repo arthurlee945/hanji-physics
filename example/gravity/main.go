@@ -109,10 +109,10 @@ func NewAttractor(x, y, mass float64) *Attractor {
 
 func (a *Attractor) Display(ctx *canvas.Context, mu *sync.RWMutex) {
 	mu.Lock()
+	defer mu.Unlock()
 	ctx.BeginPath()
 	ctx.Arc(a.loc[0], a.loc[1], a.mass, 0, math.Pi*2, false)
 	ctx.SetFillStyle(color.RGBA{138, 43, 226, 150})
 	ctx.Fill()
 	ctx.SetFillStyle(color.RGBA{75, 0, 130, 255})
-	mu.Unlock()
 }

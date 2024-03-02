@@ -38,10 +38,10 @@ func (m *Mover) Update() {
 
 func (m *Mover) Display(ctx *canvas.Context, mu *sync.RWMutex) {
 	mu.Lock()
+	defer mu.Unlock()
 	ctx.BeginPath()
 	ctx.Arc(m.Loc[0], m.Loc[1], m.Mass, 0, math.Pi*2, false)
 	ctx.Fill()
-	mu.Unlock()
 }
 
 func (m *Mover) CheckEdges(x, y float64) {
