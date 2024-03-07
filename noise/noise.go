@@ -3,7 +3,6 @@ package noise
 import (
 	"math"
 	"math/rand"
-	"sync"
 
 	hrand "github.com/arthurlee945/suhag/rand"
 )
@@ -26,7 +25,6 @@ type Noise struct {
 	permut     []float64
 	octaves    int
 	ampFO      float64
-	mu         sync.RWMutex
 }
 
 func NewNoise(opts ...NoiseFn) *Noise {
